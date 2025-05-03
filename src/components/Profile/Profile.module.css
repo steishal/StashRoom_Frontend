@@ -1,0 +1,60 @@
+.profileCard {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.username {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.statsContainer {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.statBox {
+    flex: 1;
+    max-width: 45%;
+    background: #f7f9fc;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.statTitle {
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.statValue {
+    font-size: 20px;
+    font-weight: bold;
+    color: #4680c2;
+}
+
+.actionMenu {
+    position: absolute;
+    right: 0;
+    top: 30px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    width: 150px;
+}
+
+.menuItem {
+    display: block;
+    padding: 10px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.menuItem:hover {
+    background-color: #f0f0f0;
+}
