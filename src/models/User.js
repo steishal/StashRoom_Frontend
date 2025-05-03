@@ -1,4 +1,3 @@
-// core/models/User.js
 export class User {
     constructor({ id, username, email, createdAt }) {
         this.id = id;

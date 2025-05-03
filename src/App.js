@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
-import Profile from './pages/ProfileModule';
+import Profile from './pages/Profile';
 import Settings from './pages/Settings';
 import Auth from './pages/Auth';
 import CreatePost from './pages/CreatePost';

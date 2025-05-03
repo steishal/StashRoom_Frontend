@@ -1,5 +1,4 @@
-// postService.js
-import apiClient from './apiClient';
+import apiClient from '../apiClient.js';
 
 export const PostService = {
     async getAllPosts() {
@@ -14,6 +13,11 @@ export const PostService = {
 
     async updatePost(id, postData) {
         const response = await apiClient.put(`/posts/${id}`, postData);
+        return response.data;
+    },
+
+    async getPostById(id) {
+        const response = await apiClient.get(`/posts/${id}`);
         return response.data;
     },
 
