@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { usePostController } from '../controllers/PostController';
-import { useLikeController } from '../controllers/LikeController';
-import PostView from './PostView';
+import PostView from './PostView.jsx';
+import { useLikeController } from "../../../controllers/LikeController.js";
+import { usePostController } from "../../../controllers/PostController.js";
+import { Post } from '../../../models/Post.js';
 
 const PostComponent = ({ postData, currentUserId }) => {
-    const [post, setPost] = useState(new PostComponent(postData));
+    const [post, setPost] = useState(() => new Post(postData));
     const { deletePost } = usePostController();
     const { handleLike } = useLikeController(post.id);
+    if (!postData) {
+        console.warn('⚠️ postData не передан в PostComponent');
+        return null;
+    }
 
     const handleLikeClick = async () => {
         try {
             const updatedPost = await handleLike();
-            setPost(updatedPost);
+            setPost(new Post(updatedPost));
         } catch (error) {
-            console.error('Error updating like:', error);
+            console.error('Ошибка при лайке поста:', error);
         }
     };
 
@@ -22,7 +27,7 @@ const PostComponent = ({ postData, currentUserId }) => {
             try {
                 await deletePost(post.id);
             } catch (error) {
-                console.error('Error deleting post:', error);
+                console.error('Ошибка при удалении поста:', error);
             }
         }
     };

@@ -1,0 +1,23 @@
+.message-input-container {
+    border-top: 1px solid #ddd;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    background: white;
+}
+
+.input-area {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.input-area input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    font-size: 14px;
+}
+
+.file-input {
+    display: none;
+}

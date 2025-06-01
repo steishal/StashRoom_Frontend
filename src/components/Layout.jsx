@@ -1,16 +1,17 @@
-import React from 'react';
-import SidebarModule from './Sidebar/Sidebar.module.jsx';
-import { useAuth } from '../context/AuthContext';
+import { Outlet } from 'react-router-dom';
+import NavigationControls from "./NavigationControls.jsx";
 
-const Layout = ({ children }) => {
-  const { user } = useAuth();
-
-  return (
-    <div className="app">
-      <SidebarModule userId={user?.id} role={user?.role} />
-      <main className="content">{children}</main>
-    </div>
-  );
+const Layout = () => {
+    return (
+        <div className="app">
+            <div className="main-layout">
+                <NavigationControls />
+                <main className="content">
+                    <Outlet />
+                </main>
+            </div>
+        </div>
+    );
 };
 
 export default Layout;

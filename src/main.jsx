@@ -1,10 +1,10 @@
 import { StrictMode } from 'react'
-import './index.css'
+import './styles/global.css'
 import App from './App.jsx'
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider } from './context/AuthContext.jsx';
 
 const container = document.getElementById('root');
 const root = createRoot(container);
@@ -20,8 +20,8 @@ const loadUserState = () => {
 
 root.render(
     <StrictMode>
-        <AuthProvider value={{ currentUser: loadUserState() }}>
-            <BrowserRouter>
+        <AuthProvider value={{ user: loadUserState() }}>
+        <BrowserRouter>
                 <App />
             </BrowserRouter>
         </AuthProvider>

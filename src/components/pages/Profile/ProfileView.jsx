@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Post from '../components/PostModule';
-import styles from './Profile.module.css';
+import styles from '../../../styles/Profile.module.css';
+import UserPosts from "../Post/UserPosts.jsx";
 
 const ProfileView = ({
                          isLoading,
@@ -73,13 +73,10 @@ const ProfileView = ({
             </div>
 
             <div className={styles.postsContainer}>
-                {profileData.posts.map(post => (
-                    <Post
-                        key={post.id}
-                        post={post}
-                        currentUserId={currentUser?.id}
-                    />
-                ))}
+                <UserPosts
+                    userId={userId}
+                    currentUserId={currentUser?.id}
+                />
             </div>
         </div>
     );

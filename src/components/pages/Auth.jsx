@@ -1,58 +1,85 @@
-
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import '../../styles/auth.css';
+import apiClient from '../../apiClient';
+import { useAuth } from '../../context/AuthContext';
 
 const Auth = ({ type }) => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    username: type === 'register' ? '' : undefined,
-  });
-  const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+      email: '',
+      password: '',
+      username: type === 'register' ? '' : undefined,
+    });
+
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const { setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const endpoint = type === 'login' ? '/login' : '/register';
+    setError(null);
 
-    const response = await fetch(`/api/auth${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    });
+    const endpoint = type === 'login'
+        ? '/users/auth/login'
+        : '/users/register';
 
-    if (response.ok) navigate('/');
+    try {
+      const response = await apiClient.post(endpoint, formData);
+
+      if (type === 'login') {
+        const authHeader = response.headers['authorization'];
+        const token = authHeader.split(' ')[1];
+
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('user', JSON.stringify(response.data));
+        setUser(response.data);
+      }
+      navigate('/');
+    } catch (err) {
+      const message =
+          err.response?.data?.message ||
+          err.message ||
+          'Произошла ошибка при входе';
+      setError(message);
+    }
   };
 
   return (
-    <div className="auth-container">
-      <h2>{type === 'login' ? 'Вход' : 'Регистрация'}</h2>
-      <form onSubmit={handleSubmit}>
-        {type === 'register' && (
+      <div className="auth-container">
+        <h2>{type === 'login' ? 'Вход' : 'Регистрация'}</h2>
+        <form onSubmit={handleSubmit}>
+          {type === 'register' && (
+              <input
+                  placeholder="Имя пользователя"
+                  required
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              />
+          )}
           <input
-            placeholder="Имя пользователя"
-            onChange={(e) => setFormData({...formData, username: e.target.value})}
+              type="email"
+              placeholder="Email"
+              required
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
           />
+          <input
+              type="password"
+              placeholder="Пароль"
+              required
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          />
+          <button type="submit">
+            {type === 'login' ? 'Войти' : 'Зарегистрироваться'}
+          </button>
+        </form>
+
+        {error && <div className="auth-error">{error}</div>}
+
+        {type === 'login' && (
+            <div className="reg_button_div">
+              <Link to="/register" className="reg_button">Создать аккаунт</Link>
+            </div>
         )}
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) => setFormData({...formData, email: e.target.value})}
-        />
-        <input
-          type="password"
-          placeholder="Пароль"
-          onChange={(e) => setFormData({...formData, password: e.target.value})}
-        />
-        <button type="submit">
-          {type === 'login' ? 'Войти' : 'Зарегистрироваться'}
-        </button>
-      </form>
-      {type === 'login' && (
-        <div className="reg_button_div">
-          <Link to="/register" className="reg_button">Создать аккаунт</Link>
-        </div>
-      )}
-    </div>
+      </div>
   );
 };
 

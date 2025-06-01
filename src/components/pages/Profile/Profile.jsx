@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useUserController } from '../controllers/userController';
-import { useFollowerController } from '../controllers/followerController';
-import UserService from '../services/userService';
-import ProfileView from './ProfileView';
+import ProfileView from './ProfileView.jsx';
+import {useUserController} from "../../../controllers/UserController.js";
+import {useFollowerController} from "../../../controllers/FollowerController.js";
+import {UserService} from "../../../services/userService.js";
 
 const ProfileModule = () => {
   const { userId } = useParams();

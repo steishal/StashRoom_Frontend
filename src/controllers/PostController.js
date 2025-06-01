@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { PostService } from '../services/postService.js';
 import { Post } from '../models/Post.js';
 
-export const PostController = () => {
+export const usePostController = () => {
     const [posts, setPosts] = useState([]);
 
     const fetchPosts = async () => {

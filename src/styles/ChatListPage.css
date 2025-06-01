@@ -1,0 +1,53 @@
+.chat-list-page {
+    padding: 24px;
+    background-color: #f4f5f8;
+    height: 100vh;
+}
+
+.chat-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.chat-item {
+    background: #fff;
+    padding: 16px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    transition: background 0.2s;
+}
+
+.chat-item a {
+    text-decoration: none;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-item:hover {
+    background-color: #eef1f5;
+}
+
+.chat-name {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.chat-preview {
+    font-size: 14px;
+    color: #666;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.unread-badge {
+    background-color: #1da1f2;
+    color: white;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 12px;
+}

@@ -8,7 +8,19 @@ export const useUserController = () => {
     const [loading, setLoading] = useState(true);
     const [profileLoading, setProfileLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    const [contacts, setContacts] = useState([]);
+    const [contactsLoading, setContactsLoading] = useState(false);
+    const searchUsers = useCallback(async (query) => {
+        try {
+            setContactsLoading(true);
+            const data = await UserService.searchUsers(query);
+            setContacts(data.map(u => User.fromJSON(u)));
+        } catch (err) {
+            setError(err.message || 'Search failed');
+        } finally {
+            setContactsLoading(false);
+        }
+    }, []);
     const fetchCurrentUser = useCallback(async () => {
         try {
             setLoading(true);
@@ -79,6 +91,9 @@ export const useUserController = () => {
     }, []);
 
     return {
+        contacts,
+        contactsLoading,
+        searchUsers,
         currentUser,
         profileUser,
         loading,

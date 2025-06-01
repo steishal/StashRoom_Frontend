@@ -28,6 +28,12 @@ export const UserService = {
 
     async login(userData) {
         const response = await apiClient.post('/auth/login', userData);
+        const token = response.headers['authorization'];
+
+        if (token) {
+            localStorage.setItem('authToken', token);
+        }
+
         return response.data;
     }
 };

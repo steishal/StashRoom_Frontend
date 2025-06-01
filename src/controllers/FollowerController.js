@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback} from 'react';
 import { FollowerService } from '../services/followerService.js';
 import { Follower } from '../models/Follower.js';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export const useFollowerController = (userId) => {
     const { currentUser } = useAuth();
