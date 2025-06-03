@@ -9,7 +9,7 @@ const PostComponent = ({ postData, currentUserId }) => {
     const { deletePost } = usePostController();
     const { handleLike } = useLikeController(post.id);
     if (!postData) {
-        console.warn('⚠️ postData не передан в PostComponent');
+        console.warn('postData не передан в PostComponent');
         return null;
     }
 
@@ -26,6 +26,7 @@ const PostComponent = ({ postData, currentUserId }) => {
         if (window.confirm('Вы уверены, что хотите удалить пост?')) {
             try {
                 await deletePost(post.id);
+                window.location.reload();
             } catch (error) {
                 console.error('Ошибка при удалении поста:', error);
             }

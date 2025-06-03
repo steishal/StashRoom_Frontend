@@ -1,7 +1,6 @@
 export class Like {
-    constructor({ id, user, postId }) {
-        this.id = id;
-        this.user = user;
+    constructor({ postId, userId }) {
         this.postId = postId;
+        this.userId = userId;
     }
 }

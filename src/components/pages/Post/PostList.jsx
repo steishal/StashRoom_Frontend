@@ -17,7 +17,7 @@ const PostList = () => {
     return (
         <div className="post-list">
             {posts
-                .filter(post => post && post.id) // безопасный фильтр
+                .filter(post => post && post.id)
                 .map(post => (
                     <PostComponent
                         key={post.id}

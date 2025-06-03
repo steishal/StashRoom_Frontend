@@ -75,3 +75,8 @@
     font-size: 13px;
     color: gray;
 }
+
+.comment-icon {
+    text-decoration: none;
+    color: inherit;
+}

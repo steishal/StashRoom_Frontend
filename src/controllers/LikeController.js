@@ -4,7 +4,7 @@ import { LikeService } from '../services/likeService.js';
 import { Like } from '../models/Like.js';
 
 export const useLikeController = (postId) => {
-    const { currentUser } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const [likes, setLikes] = useState([]);
     const [isLiked, setIsLiked] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -17,8 +17,8 @@ export const useLikeController = (postId) => {
             const likesData = data.map(l => new Like(l));
             setLikes(likesData);
 
-            if (currentUser) {
-                const userLike = likesData.some(l => l.user.id === currentUser.id);
+            if (user) {
+                const userLike = likesData.some(l => l.userId === user.id);
                 setIsLiked(userLike);
             }
         } catch (err) {
@@ -26,14 +26,17 @@ export const useLikeController = (postId) => {
         } finally {
             setIsLoading(false);
         }
-    }, [postId, currentUser]);
+    }, [postId, user]);
 
     useEffect(() => {
         fetchLikes();
     }, [fetchLikes]);
 
     const handleLike = async () => {
-        if (!currentUser) {
+        console.log('Лайк нажали');
+
+        if (!user) {
+            console.log('Пользователь не авторизован');
             setError('You must be logged in to like posts');
             return;
         }
@@ -43,25 +46,34 @@ export const useLikeController = (postId) => {
         try {
             setError(null);
             previousLikes = [...likes];
-            setIsLiked(prev => !prev);
 
             if (!isLiked) {
+                console.log('Ставим лайк...');
                 await LikeService.likePost(postId);
-                setLikes(prev => [...prev, new Like({
-                    id: Date.now(),
-                    user: currentUser,
-                    postId
-                })]);
+                setLikes(prev => [...prev, { postId, user: { id: user.id } }]);
+                setIsLiked(true);
             } else {
+                console.log('Убираем лайк...');
                 await LikeService.unlikePost(postId);
-                setLikes(prev => prev.filter(l => l.user.id !== currentUser.id));
+                setLikes(prev =>
+                    prev.filter(l =>
+                        (l.user && l.user.id !== user.id) ||
+                        (l.userId && l.userId !== user.id)
+                    )
+                );
+                setIsLiked(false);
             }
+
+            console.log('Лайки после:', likes);
+
         } catch (err) {
-            setIsLiked(prev => !prev);
+            console.log('Ошибка:', err);
             setLikes(previousLikes);
+            setIsLiked(isLiked);
             setError(err.message);
         }
     };
+
 
     return {
         likes,

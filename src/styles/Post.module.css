@@ -1,62 +1,181 @@
 .container {
     position: relative;
     width: 600px;
-    margin: 10px auto;
+    margin: 15px auto;
     padding: 15px;
-    border: 1px solid #e1e1e1;
     border-radius: 10px;
     background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #ddd;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+}
+
+.avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ccc;
 }
 
 .author {
     font-weight: bold;
-    color: #4a76a8;
+    color: #2c587f;
 }
 
 .date {
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 0.85rem;
+    color: #888;
 }
 
 .content {
-    margin-bottom: 12px;
+    margin: 12px 0;
+    font-size: 1rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+.imageBlock {
+    margin-top: 10px;
 }
 
 .image {
     max-width: 100%;
-    border-radius: 10px;
-    margin-top: 10px;
+    border-radius: 8px;
+    margin-top: 8px;
 }
 
 .actions {
     display: flex;
-    gap: 10px;
-    margin-top: 10px;
+    align-items: center;
+    gap: 15px;
+    margin-top: 12px;
 }
 
 .likeButton {
     background: none;
     border: none;
     cursor: pointer;
+    color: #555;
     display: flex;
     align-items: center;
-}
-
-.likeIcon {
-    font-size: 18px;
-    color: #ccc;
-    transition: color 0.2s ease;
+    gap: 5px;
+    font-size: 1rem;
 }
 
 .liked {
-    color: #e74c3c !important;
+    color: #e74c3c;
 }
+
+.commentLink {
+    color: #555;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1rem;
+}
+
+.categoryTag {
+    margin-left: auto;
+    background-color: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    margin-left: 10px;
+    cursor: pointer;
+    color: #888;
+    font-size: 1rem;
+}
+
+a i,
+.comment-icon {
+    text-decoration: none;
+    color: inherit;
+}
+
+.actionBtn i {
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.actionBtn i:hover {
+    color: #007bff;
+}
+
+/* Убираем подчёркивание у всех ссылок внутри поста */
+a {
+    text-decoration: none;
+}
+
+/* Если у тебя класс .commentsLink, то сбросим для него */
+.commentsLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* На всякий случай — подчёркивание у вложенных иконок */
+.commentsLink i {
+    text-decoration: none;
+    color: inherit;
+}
+
+.commentsLink {
+    text-decoration: none !important;
+}
+
+/* Убираем подчёркивание у всех ссылок внутри постов */
+a, a:visited, a:hover, a:active {
+    text-decoration: none;
+}
+
+/* Явно для .commentsLink */
+.commentsLink {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.commentsLink i {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.likeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.2rem;
+    transition: transform 0.1s ease;
+}
+
+.likeBtn:active {
+    transform: scale(1.2);
+}
+
+.likeBtn i {
+    color: #888;
+    transition: color 0.3s ease;
+}
+
+.liked {
+    color: red !important;
+}
+

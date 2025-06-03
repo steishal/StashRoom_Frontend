@@ -28,55 +28,39 @@ const ProfileView = ({
 
     return (
         <div className={styles.content}>
-            <div className={styles.profileCard}>
-                <div className={styles.profileHeader}>
-                    <h1>{profileData.username}</h1>
-                    {currentUser?.id === userId && (
-                        <div className={styles.profileActions}>
-                            <i className={`fas fa-cog ${styles.settingsIcon}`} />
-                            <div className={styles.actionsMenu}>
-                                <Link to="/edit-profile" className={styles.menuItem}>
-                                    Редактировать профиль
-                                </Link>
-                                <Link to="/settings" className={styles.menuItem}>
-                                    Настройки
-                                </Link>
-                                <button className={styles.deleteButton}>
-                                    Выйти
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <div className={styles.statsContainer}>
-                    <div className={styles.statItem}>
-                        <h2>Подписки</h2>
-                        <p>{following.length}</p>
-                    </div>
-                    <div className={styles.statItem}>
-                        <h2>Подписчики</h2>
-                        <p>{followers.length}</p>
-                    </div>
-                </div>
+            <div className={styles.avatarSection}>
+                <img
+                    src={profileData.avatarUrl || "/default-avatar.png"}
+                    alt="Avatar"
+                    className={styles.avatar}
+                />
+                <div className={styles.username}>{profileData.username}</div>
 
                 {currentUser?.id !== userId && (
                     <button
                         className={`${styles.followButton} ${
-                            isFollowing ? styles.unfollow : styles.follow
+                            isFollowing ? styles.unfollow : ""
                         }`}
                         onClick={toggleFollow}
                     >
-                        {isFollowing ? 'Отписаться' : 'Подписаться'}
+                        {isFollowing ? "Отписаться" : "Подписаться"}
                     </button>
                 )}
             </div>
 
+            <div className={styles.statsSection}>
+                <div className={styles.statCard}>
+                    <div className={styles.statTitle}>Подписки</div>
+                    <div className={styles.statCount}>{following.length}</div>
+                </div>
+                <div className={styles.statCard}>
+                    <div className={styles.statTitle}>Подписчики</div>
+                    <div className={styles.statCount}>{followers.length}</div>
+                </div>
+            </div>
+
             <div className={styles.postsContainer}>
-                <UserPosts
-                    userId={userId}
-                    currentUserId={currentUser?.id}
-                />
+                <UserPosts userId={userId} currentUserId={currentUser?.id} />
             </div>
         </div>
     );

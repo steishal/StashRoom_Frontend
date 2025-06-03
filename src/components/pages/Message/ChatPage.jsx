@@ -2,38 +2,42 @@ import React, { useEffect, useRef, useState } from 'react';
 import MessageList from './MessageList';
 import MessageInputContainer from './MessageInputContainer';
 import '../../../styles/ChatPage.css';
+import {webSocketService} from "../../../services/webSocketService.js";
 
 const ChatPage = ({ receiverId, currentUserId }) => {
     const [messages, setMessages] = useState([]);
     const messageListRef = useRef();
 
     const handleSend = (text, files) => {
+        if (!text && files.length === 0) return;
+
         const newMessage = {
-            id: Date.now(),
-            sender: { id: currentUserId },
+            receiverId,
             content: text,
-            timestamp: new Date(),
-            files: files,
+            attachments: [],
         };
-        setMessages(prev => [...prev, newMessage]);
 
-        // TODO: отправить на сервер (через WebSocket или fetch)
-    };
-
-    const handleReact = (messageId, reaction) => {
-        // TODO: реализовать реакцию на сообщение
+        webSocketService.sendMessage(newMessage);
     };
 
     useEffect(() => {
-        // TODO: загрузка сообщений с сервера по receiverId
+        const listenerId = webSocketService.addListener((incomingMessage) => {
+            if (parseInt(incomingMessage.sender.id) === receiverId || parseInt(incomingMessage.receiverId) === receiverId) {
+                setMessages(prev => [...prev, incomingMessage]);
+            }
+        });
+
+        return () => {
+            webSocketService.removeListener(listenerId);
+        };
     }, [receiverId]);
+
 
     return (
         <div className="chat-container">
             <MessageList
                 messages={messages}
                 currentUserId={currentUserId}
-                onReact={handleReact}
                 ref={messageListRef}
             />
             <MessageInputContainer onSend={handleSend} />

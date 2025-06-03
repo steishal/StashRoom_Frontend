@@ -15,7 +15,6 @@ const UserPosts = ({ userId, currentUserId }) => {
 
     return (
         <div>
-            <h3>Посты</h3>
             {userPosts.map(post => (
                 <PostComponent
                     key={post.id}
