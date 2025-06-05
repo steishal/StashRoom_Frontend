@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { usePostController } from '../../../controllers/PostController';
-import apiClient from '../../../apiClient';
 import styles from '../../../styles/CreatePostPage.module.css';
+import { usePostController } from '../../../controllers/PostController.js';
+import apiClient from "../../../apiClient.js";
+
 
 const EditPostPage = () => {
-    const { updatePost } = usePostController();
     const { id } = useParams();
     const navigate = useNavigate();
+
+    const { post, fetchPostById, updatePost } = usePostController();
 
     const [content, setContent] = useState('');
     const [categoryId, setCategoryId] = useState('');
@@ -15,19 +17,8 @@ const EditPostPage = () => {
     const [existingImages, setExistingImages] = useState([]);
 
     useEffect(() => {
-        const fetchPost = async () => {
-            try {
-                const response = await apiClient.get(`/posts/${id}`);
-                const post = response.data;
-                setContent(post.content);
-                setCategoryId(post.categoryId);
-                setExistingImages(post.imageUrls || []);
-            } catch (err) {
-                console.error('Ошибка загрузки поста:', err);
-            }
-        };
-
-        const fetchCategories = async () => {
+        const fetchData = async () => {
+            await fetchPostById(id);
             try {
                 const response = await apiClient.get('/categories');
                 setCategories(response.data);
@@ -36,9 +27,16 @@ const EditPostPage = () => {
             }
         };
 
-        fetchPost();
-        fetchCategories();
+        fetchData();
     }, [id]);
+
+    useEffect(() => {
+        if (post) {
+            setContent(post.content);
+            setCategoryId(post.categoryId);
+            setExistingImages(post.imageUrls || []);
+        }
+    }, [post]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -48,13 +46,8 @@ const EditPostPage = () => {
             return;
         }
 
-        const postData = {
-            content,
-            categoryId
-        };
-
         try {
-            await updatePost(id, postData);
+            await updatePost(id, { content, categoryId });
             alert('Пост обновлён!');
             navigate(`/posts/${id}`);
         } catch (err) {
@@ -108,3 +101,4 @@ const EditPostPage = () => {
 };
 
 export default EditPostPage;
+

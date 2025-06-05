@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
-import '../../../styles/MessageInputView.module.css';
+import '../../../styles/MessageInputView.css';
 
-const MessageInputContainer = ({ onSend}) => {
+const MessageInputContainer = ({ onSend, receiverId }) => {
     const [input, setInput] = useState('');
     const [files, setFiles] = useState([]);
     const typingTimeout = useRef();
@@ -18,8 +18,9 @@ const MessageInputContainer = ({ onSend}) => {
 
     const handleSend = () => {
         if (!input.trim() && files.length === 0) return;
+        console.log(receiverId);
 
-        onSend(input, files);
+        onSend(input, files, receiverId);
         setInput('');
         setFiles([]);
     };

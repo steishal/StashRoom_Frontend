@@ -17,7 +17,6 @@ const Settings = () => {
       return;
     }
 
-    // API call here
   };
 
   return (

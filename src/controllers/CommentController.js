@@ -40,7 +40,8 @@ export const useCommentController = (postId) => {
         try {
             const updatedComment = await CommentService.updateComment({
                 id: commentId,
-                content: newContent
+                content: newContent,
+                postId
             });
             setComments(prev =>
                 prev.map(c => c.id === commentId ? new Comment(updatedComment) : c)

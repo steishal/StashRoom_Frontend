@@ -1,7 +1,10 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
 import styles from '../../../styles/Profile.module.css';
 import UserPosts from "../Post/UserPosts.jsx";
+import AvatarUploader from './AvatarUploader';
+import { useAuth } from '../../../context/AuthContext.jsx';
+import {useUserController} from "../../../controllers/UserController.js";
+
 
 const ProfileView = ({
                          isLoading,
@@ -14,6 +17,25 @@ const ProfileView = ({
                          isFollowing,
                          toggleFollow
                      }) => {
+    const [avatarUrl, setAvatarUrl] = useState(null);
+    const { user } = useAuth();
+    const {fetchUserAvatar} = useUserController();
+
+    useEffect(() => {
+        const loadAvatar = async () => {
+            try {
+                const avatar = await fetchUserAvatar(userId);
+                setAvatarUrl(avatar);
+            } catch (err) {
+                console.error("Ошибка при загрузке аватара:", err);
+            }
+        };
+
+        if (userId) {
+            loadAvatar();
+        }
+    }, [userId]);
+
     if (isLoading) {
         return <div className={styles.loading}>Загрузка...</div>;
     }
@@ -29,18 +51,18 @@ const ProfileView = ({
     return (
         <div className={styles.content}>
             <div className={styles.avatarSection}>
-                <img
-                    src={profileData.avatarUrl || "/default-avatar.png"}
-                    alt="Avatar"
-                    className={styles.avatar}
+                <AvatarUploader
+                    userId={currentUser?.id}
+                    avatarUrl={avatarUrl}
+                    isCurrentUser={currentUser?.id === userId}
+                    onAvatarChange={(newUrl) => setAvatarUrl(newUrl)}
                 />
+
                 <div className={styles.username}>{profileData.username}</div>
 
                 {currentUser?.id !== userId && (
                     <button
-                        className={`${styles.followButton} ${
-                            isFollowing ? styles.unfollow : ""
-                        }`}
+                        className={`${styles.followButton} ${isFollowing ? styles.unfollow : ""}`}
                         onClick={toggleFollow}
                     >
                         {isFollowing ? "Отписаться" : "Подписаться"}

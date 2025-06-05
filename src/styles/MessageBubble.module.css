@@ -2,55 +2,57 @@
     max-width: 70%;
     padding: 10px 14px;
     border-radius: 16px;
-    background: white;
-    position: relative;
+    background: #fff;
+    margin-bottom: 10px;
     display: flex;
     flex-direction: column;
+    position: relative;
 }
-
 .own {
     align-self: flex-end;
     background-color: #dcf8c6;
 }
-
 .other {
     align-self: flex-start;
-    background-color: white;
+    background-color: #fff;
 }
-
 .bubble-meta {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    color: #666;
     margin-bottom: 5px;
 }
-
 .bubble-avatar {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    margin-right: 8px;
 }
-
+.bubble-time {
+    font-size: 12px;
+    color: #888;
+}
 .bubble-content {
     font-size: 14px;
-    color: #222;
+    margin-bottom: 5px;
+    white-space: pre-wrap;
 }
-
-.bubble-attachments {
-    margin-top: 5px;
+.bubble-attachments a {
+    display: block;
+    margin-top: 4px;
+    color: #0066cc;
+    text-decoration: none;
     font-size: 13px;
 }
-
-.bubble-attachments a {
-    color: #1a0dab;
-    text-decoration: none;
-}
-
 .bubble-status {
     align-self: flex-end;
-    font-size: 11px;
+    font-size: 12px;
+    display: flex;
+    gap: 2px;
     color: gray;
-    margin-top: 4px;
+}
+.bubble-status .delivered {
+    color: gray;
+}
+.bubble-status .read {
+    color: #34B7F1;
 }

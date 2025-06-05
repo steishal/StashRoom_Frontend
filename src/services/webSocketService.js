@@ -4,64 +4,132 @@ import { Client } from "@stomp/stompjs";
 const socketUrl = "http://localhost:8080/ws";
 
 let stompClient = null;
+let subscription = null;
 const listeners = new Map();
 let listenerId = 0;
-let isSubscribed = false;
+
+const waitUntilConnected = () => {
+    return new Promise((resolve, reject) => {
+        const maxAttempts = 50;
+        let attempts = 0;
+        const check = () => {
+            if (stompClient && stompClient.connected) {
+                resolve();
+            } else if (attempts >= maxAttempts) {
+                reject(new Error("WebSocket не подключен после ожидания"));
+            } else {
+                attempts++;
+                setTimeout(check, 100);
+            }
+        };
+        check();
+    });
+};
 
 const connect = () => {
-    const token = localStorage.getItem("authToken")?.replace("Bearer ", "");
-
+    const token = localStorage.getItem("authToken");
     if (!token) {
         console.warn("No auth token found — WebSocket not connected");
         return;
     }
 
+    if (stompClient && stompClient.connected) {
+        console.log("WebSocket уже подключён");
+        return;
+    }
+
+    if (stompClient) {
+        try {
+            stompClient.deactivate();
+        } catch (e) {
+            console.error("Ошибка при деактивации клиента:", e);
+        }
+        stompClient = null;
+        subscription = null;
+    }
+
     stompClient = new Client({
-        webSocketFactory: () => new SockJS(socketUrl),
+        webSocketFactory: () =>
+            new SockJS(`${socketUrl}?token=${encodeURIComponent(token)}`),
         connectHeaders: {
             Authorization: `Bearer ${token}`,
+            Accept: 'application/json',
         },
         reconnectDelay: 5000,
         onConnect: () => {
             console.log("WebSocket (SockJS) connected");
 
-            if (!isSubscribed) {
-                stompClient.subscribe("/user/queue/messages", (message) => {
+            if (!subscription) {
+                subscription = stompClient.subscribe("/user/queue/messages",
+                    (message) => {
                     const data = JSON.parse(message.body);
-                    listeners.forEach((callback) => callback(data));
+                    listeners.forEach((callback) => {
+                        try {
+                            callback(data);
+                        } catch (err) {
+                            console.error("Ошибка в обработчике WebSocket сообщения:", err);
+                        }
+                    });
                 });
-                isSubscribed = true;
             }
         },
         onStompError: (frame) => {
             console.error("STOMP error:", frame.headers["message"]);
         },
         onWebSocketClose: () => {
-            isSubscribed = false;
-            console.warn("⚠WebSocket closed");
-        }
+            subscription = null;
+            console.warn("⚠ WebSocket closed");
+        },
     });
-
     stompClient.activate();
 };
 
-const sendMessage = (message) => {
-    if (stompClient && stompClient.connected) {
-        stompClient.publish({
-            destination: "/app/chat",
-            body: JSON.stringify(message),
-        });
-    } else {
-        console.warn("WebSocket is not connected.");
+const disconnect = () => {
+    if (stompClient) {
+        if (subscription) {
+            try {
+                subscription.unsubscribe();
+            } catch (e) {
+                console.error("Error unsubscribing:", e);
+            }
+            subscription = null;
+        }
+        try {
+            stompClient.deactivate();
+            console.log("WebSocket disconnected");
+        } catch (e) {
+            console.error("Ошибка при деактивации клиента:", e);
+        }
+        stompClient = null;
     }
 };
 
-const send = (data) => {
-    if (stompClient && stompClient.connected) {
+const sendMessage = async (message) => {
+    const token = localStorage.getItem("authToken");
+    try {
+        await waitUntilConnected();
+        stompClient.publish({
+            destination: "/app/chat",
+            body: JSON.stringify(message),
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "content-type": "application/json" },
+        });
+
+    } catch (err) {
+        console.warn("WebSocket is not connected. Сообщение не отправлено:", err);
+    }
+};
+
+const send = async (data) => {
+    try {
+        await waitUntilConnected();
         stompClient.publish({
             destination: "/app/extra",
             body: JSON.stringify(data),
         });
+    } catch (err) {
+        console.warn("WebSocket is not connected. Данные не отправлены:", err);
     }
 };
 
@@ -77,6 +145,7 @@ const removeListener = (id) => {
 
 export const webSocketService = {
     connect,
+    disconnect,
     sendMessage,
     send,
     addListener,

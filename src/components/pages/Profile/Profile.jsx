@@ -20,6 +20,8 @@ const ProfileModule = () => {
   const [profileData, setProfileData] = useState(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const { fetchUserAvatar } = useUserController();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -33,8 +35,16 @@ const ProfileModule = () => {
       }
     };
 
+    const loadAvatar = async () => {
+      if (userId) {
+        const avatar = await fetchUserAvatar(userId);
+        setAvatarUrl(avatar);
+      }
+    };
+    loadAvatar();
+
     fetchProfileData();
-  }, [userId]);
+  }, [userId, fetchUserAvatar]);
 
   return (
       <ProfileView

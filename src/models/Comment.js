@@ -1,13 +1,13 @@
 export class Comment {
-    constructor({ id, content, author, postId, createdAt }) {
+    constructor({ id, content, authorUsername, authorId, postId, createDate }) {
         this.id = id;
         this.content = content;
-        this.author = author;
+        this.author = {
+            username: authorUsername,
+            avatar: null,
+            id: authorId
+        };
         this.postId = postId;
-        this.createdAt = new Date(createdAt);
-    }
-
-    get shortContent() {
-        return this.content.slice(0, 50) + (this.content.length > 50 ? '...' : '');
+        this.createdAt = new Date(createDate);
     }
 }

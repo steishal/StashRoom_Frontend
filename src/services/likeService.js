@@ -1,4 +1,4 @@
-import apiClient from '../Apiclient';
+import apiClient from '../apiClient'
 
 export const LikeService = {
     async getPostLikes(postId){

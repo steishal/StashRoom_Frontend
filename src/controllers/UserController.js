@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserService } from '../services/userService.js';
 import { User } from '../models/User.js';
+import axios from 'axios';
 
 export const useUserController = () => {
     const [currentUser, setCurrentUser] = useState(null);
@@ -21,6 +22,25 @@ export const useUserController = () => {
             setContactsLoading(false);
         }
     }, []);
+
+    const fetchUserAvatar = async (userId) => {
+        const token = localStorage.getItem("authToken");
+
+        try {
+            const response = await axios.get(`/api/users/${userId}/avatar`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                },
+            });
+
+            return response.data.avatar;
+        } catch (error) {
+            console.error("Ошибка при получении аватара:", error);
+            throw error;
+        }
+    };
+
     const fetchCurrentUser = useCallback(async () => {
         try {
             setLoading(true);
@@ -101,6 +121,7 @@ export const useUserController = () => {
         error,
         updateUser,
         refreshUser: fetchCurrentUser,
-        getUserById
+        getUserById,
+        fetchUserAvatar
     };
 };

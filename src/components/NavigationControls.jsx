@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import '../styles/NavigationControls.css';
 import {useAuth} from "../context/AuthContext.jsx";
+import UserSearch from "./pages/Message/UserSearch.jsx";
 
 const NavigationControls = () => {
         const { user } = useAuth();
@@ -36,7 +37,11 @@ const NavigationControls = () => {
                     >
                             Чаты
                     </NavLink>
+                <div className="header-search">
+                    <UserSearch />
+                </div>
             </nav>
+
         );
 };
 

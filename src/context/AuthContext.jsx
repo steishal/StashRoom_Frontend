@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { UserService } from '../services/UserService';
+import { UserService } from '../services/userService';
 
 export const AuthContext = createContext();
 
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
                 const data = await UserService.getCurrentUser();
                 setUser(data);
             } catch (err) {
-                console.warn('❌ Invalid token or fetch error:', err);
+                console.warn('Invalid token or fetch error:', err);
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('user');
                 setUser(null);

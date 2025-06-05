@@ -1,10 +1,16 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import styles from '../../../styles/Post.module.css';
 import {useLikeController} from "../../../controllers/LikeController.js";
 import {LikeButton} from "./LikeButton.jsx";
+import {useUserController} from "../../../controllers/UserController.js";
 
 const PostView = ({ post, currentUserId, onDelete}) => {
+
+    const [avatarUrl, setAvatarUrl] = useState(null);
+    const {
+        fetchUserAvatar
+    } = useUserController();
 
     const {
         author,
@@ -23,8 +29,20 @@ const PostView = ({ post, currentUserId, onDelete}) => {
     } = useLikeController(post.id);
 
     useEffect(() => {
+        const loadAvatar = async () => {
+            try {
+                const avatar = await fetchUserAvatar(author.id);
+                setAvatarUrl(avatar);
+            } catch (err) {
+                console.error("Ошибка при загрузке аватара:", err);
+            }
+        };
+
+        if (author.id) {
+            loadAvatar();
+        }
         fetchLikes();
-    }, [post.id]);
+    }, [post.id, author.id]);
 
     if (!post) return null;
 
@@ -34,7 +52,7 @@ const PostView = ({ post, currentUserId, onDelete}) => {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Link to={`/profile/${author?.id}`} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
                         <img
-                            src={author?.avatar || '/default-avatar.png'}
+                            src={avatarUrl || '/default-avatar.png'}
                             alt="avatar"
                             className={styles.avatar}
                         />

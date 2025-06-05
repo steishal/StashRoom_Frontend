@@ -16,6 +16,11 @@ export const UserService = {
         return response.data;
     },
 
+    async getAvatar(userId) {
+        const response = await apiClient.get(`/users/${userId}/avatar`);
+        return response.data;
+    },
+
     async getUserByUsername(username) {
         const response = await apiClient.get(`/users/username/${username}`);
         return response.data;

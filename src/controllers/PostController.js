@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { PostService } from '../services/postService.js';
 import { Post } from '../models/Post.js';
+import apiClient from "../apiClient.js";
 
 export const usePostController = () => {
     const [posts, setPosts] = useState([]);
+    const [post, setPost] = useState(null);
 
     const fetchPosts = async () => {
         const data = await PostService.getAllPosts();
@@ -30,15 +32,17 @@ export const usePostController = () => {
         }
     };
 
-    const updatePost = async (postId, postData) => {
+    const fetchPostById = async (id) => {
         try {
-            const updatedPost = await PostService.updatePost(postId, postData);
-            setPosts(posts.map(p =>
-                p.id === postId ? new Post(updatedPost) : p
-            ));
-        } catch (error) {
-            console.error('Error updating post:', error);
+            const response = await apiClient.get(`/posts/${id}`);
+            setPost(response.data);
+        } catch (err) {
+            console.error('Ошибка загрузки поста:', err);
         }
+    };
+
+    const updatePost = async (id, postData) => {
+        return apiClient.put(`/posts/${id}`, postData);
     };
 
     const deletePost = async (postId) => {
@@ -52,10 +56,12 @@ export const usePostController = () => {
 
     return {
         posts,
+        post,
         fetchPosts,
         likePost,
         createPost,
         updatePost,
-        deletePost
+        deletePost,
+        fetchPostById
     };
 };

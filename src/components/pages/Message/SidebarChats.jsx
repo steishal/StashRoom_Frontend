@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useParams } from 'react-router-dom';
 import { webSocketService } from '../../../services/webSocketService.js';
-import {useAuth} from "../../../context/AuthContext.jsx";
-
+import { useAuth } from '../../../context/AuthContext.jsx';
+import '../../../styles/ChatListPage.css';
 
 const SidebarChats = () => {
     const [chats, setChats] = useState([]);
@@ -20,8 +20,8 @@ const SidebarChats = () => {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
+                        'Content-Type': 'application/json',
+                    },
                 });
 
                 if (!res.ok) {
@@ -44,7 +44,8 @@ const SidebarChats = () => {
 
             setChats(prevChats =>
                 prevChats.map(chat =>
-                    String(chat.id) === String(message.senderId) && String(chat.id) !== receiverId
+                    String(chat.id) === String(message.senderId) &&
+                    String(chat.id) !== receiverId
                         ? { ...chat, hasNew: true }
                         : chat
                 )
@@ -64,10 +65,18 @@ const SidebarChats = () => {
         );
     };
 
+    const formatTime = (isoString) => {
+        if (!isoString) return '';
+        const date = new Date(isoString);
+        return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    };
+
     return (
-        <div className="sidebar">
-            <h2>Чаты</h2>
+        <div className="sidebar-chats">
+            <div className="chat-sidebar-header">Чаты</div>
+
             {error && <div className="error">Ошибка: {error}</div>}
+
             {chats.map(chat => (
                 <NavLink
                     key={chat.id}
@@ -75,8 +84,25 @@ const SidebarChats = () => {
                     className={({ isActive }) => `chat-link ${isActive ? 'active' : ''}`}
                     onClick={() => handleChatClick(chat.id)}
                 >
-                    {chat.name}
-                    {chat.hasNew && <span className="dot" />}
+                    <div className="chat-item">
+                        <img
+                            src={chat.avatarUrl || '/avatar.png'}
+                            alt="Avatar"
+                            className="chat-avatar"
+                        />
+                        <div className="chat-details">
+                            <div className="chat-name">{chat.name}</div>
+                            <div className="chat-last-message">{chat.lastMessage}</div>
+                        </div>
+                        <div className="chat-meta">
+                            <span className="chat-time">{formatTime(chat.lastMessageTime)}</span>
+                            {chat.hasNew && (
+                                <span className="unread-badge">
+                                    {chat.unreadCount || 1}
+                                </span>
+                            )}
+                        </div>
+                    </div>
                 </NavLink>
             ))}
         </div>
@@ -84,3 +110,4 @@ const SidebarChats = () => {
 };
 
 export default SidebarChats;
+
