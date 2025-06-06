@@ -7,13 +7,18 @@ export const CategoryService = {
         return response.data;
     },
 
+    async getAllCategoriesForAdmin() {
+        const response = await apiClient.get('/admin/categories');
+        return response.data;
+    },
+
     async createCategory(categoryData) {
-        const response = await apiClient.post('/categories', categoryData);
+        const response = await apiClient.post('/admin/category/create', categoryData);
         return response.data;
     },
 
     async updateCategory(id, categoryData) {
-        const response = await apiClient.put(`/categories/${id}`, categoryData);
+        const response = await apiClient.put(`/admin/category/${id}`, categoryData);
         return response.data;
     },
 
@@ -23,6 +28,6 @@ export const CategoryService = {
     },
 
     async deleteCategory(id) {
-        await apiClient.delete(`/categories/${id}`);
+        await apiClient.delete(`/admin/category/${id}`);
     }
 };

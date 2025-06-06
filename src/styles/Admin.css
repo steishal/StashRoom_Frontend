@@ -1,0 +1,128 @@
+.category-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+}
+
+.category-container h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.category-input-group {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 12px;
+}
+
+.category-input-group input {
+    padding: 10px 15px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.2s;
+}
+
+.category-input-group input:focus {
+    border-color: #6c63ff;
+    outline: none;
+}
+
+.category-input-group button {
+    padding: 10px 20px;
+    background-color: #6c63ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.category-input-group button:hover {
+    background-color: #5848e5;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.category-card {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s;
+}
+
+.category-card:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.category-card h3 {
+    font-size: 20px;
+    margin-bottom: 8px;
+}
+
+.category-id {
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn.edit {
+    background-color: #ffc107;
+    color: white;
+}
+
+.btn.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn.save {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn.cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}

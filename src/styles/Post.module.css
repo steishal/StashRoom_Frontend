@@ -115,18 +115,15 @@ a i,
     color: #007bff;
 }
 
-/* Убираем подчёркивание у всех ссылок внутри поста */
 a {
     text-decoration: none;
 }
 
-/* Если у тебя класс .commentsLink, то сбросим для него */
 .commentsLink {
     text-decoration: none;
     color: inherit;
 }
 
-/* На всякий случай — подчёркивание у вложенных иконок */
 .commentsLink i {
     text-decoration: none;
     color: inherit;
@@ -136,12 +133,10 @@ a {
     text-decoration: none !important;
 }
 
-/* Убираем подчёркивание у всех ссылок внутри постов */
 a, a:visited, a:hover, a:active {
     text-decoration: none;
 }
 
-/* Явно для .commentsLink */
 .commentsLink {
     text-decoration: none !important;
     color: inherit !important;
@@ -162,8 +157,10 @@ a, a:visited, a:hover, a:active {
     display: flex;
     align-items: center;
     gap: 4px;
-    font-size: 1.2rem;
+    font-size: 1rem;
     transition: transform 0.1s ease;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .likeBtn:active {
@@ -178,4 +175,3 @@ a, a:visited, a:hover, a:active {
 .liked {
     color: red !important;
 }
-

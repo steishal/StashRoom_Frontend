@@ -15,18 +15,18 @@ const SubscriptionsFeed = () => {
 
             try {
                 const following = await FollowerService.getFollowing(user.id);
-                const ids = following.map(f => f.id);
+                const ids = following.map(f => f.followingId);
                 setFollowingIds(ids);
+                await fetchPosts();
             } catch (error) {
-                console.error('Ошибка при загрузке подписок', error);
+                console.error('Ошибка при загрузке подписок или постов', error);
             }
         };
 
         loadData();
-        fetchPosts();
     }, [user?.id]);
 
-    if (!user || !followingIds.length) return <div>Загрузка...</div>;
+    if (!user || !posts.length) return <div>Загрузка...</div>;
 
     const filtered = posts.filter(post =>
         followingIds.includes(post.author?.id)
@@ -34,7 +34,6 @@ const SubscriptionsFeed = () => {
 
     return (
         <div className="subscriptions-feed">
-            <h2>Лента подписок</h2>
             {filtered.length === 0 ? (
                 <p>Нет постов от подписок.</p>
             ) : (

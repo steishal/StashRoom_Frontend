@@ -11,8 +11,6 @@ const UserPosts = ({ userId, currentUserId }) => {
 
     const userPosts = posts.filter(post => post.author?.id === parseInt(userId));
 
-    if (!userPosts.length) return <p>Нет постов у пользователя.</p>;
-
     return (
         <div>
             {userPosts.map(post => (

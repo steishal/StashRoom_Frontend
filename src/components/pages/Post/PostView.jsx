@@ -58,7 +58,7 @@ const PostView = ({ post, currentUserId, onDelete}) => {
                         />
                         <div style={{ marginLeft: '10px' }}>
                             <div className={styles.author}>{author?.username || 'Аноним'}</div>
-                            <div className={styles.date}>{new Date(createDate).toLocaleString()}</div>
+                            <div className={styles.date}>{new Date(post.createDate).toLocaleString()}</div>
                         </div>
                     </Link>
                 </div>

@@ -17,6 +17,7 @@ const PostCommentsPage = () => {
     const { fetchUserAvatar } = useUserController();
     const [currentUserAvatar, setCurrentUserAvatar] = useState(null);
     const { user } = useContext(AuthContext);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const {
         comments,
         fetchComments,
@@ -72,9 +73,16 @@ const PostCommentsPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (newComment.trim()) {
+        if (isSubmitting || !newComment.trim()) return;
+
+        setIsSubmitting(true);
+        try {
             await addComment(newComment.trim());
             setNewComment('');
+        } catch (err) {
+            console.error('Ошибка при добавлении комментария:', err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -107,11 +115,11 @@ const PostCommentsPage = () => {
         placeholder="Напишите комментарий..."
         className={styles.commentTextarea}
     />
-                    <button type="submit" className={styles.sendButton}>Отправить</button>
+                    <button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Отправка...' : 'Отправить'}
+                    </button>
                 </div>
             </form>
-
-            {/* Список комментариев */}
             <div className={styles.commentList}>
                 {comments.map(comment => (
                     <div key={comment.id} className={styles.commentItem}>

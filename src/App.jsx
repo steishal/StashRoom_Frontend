@@ -13,6 +13,8 @@ import PostCommentsPage from "./components/pages/Comments/PostCommentsPage.jsx";
 import {webSocketService} from "./services/webSocketService.js";
 import {useEffect} from "react";
 import ChatPageWrapper from "./components/pages/Message/ChatPageWrapper.jsx";
+import SettingsPage from "./components/pages/Profile/Settings.jsx";
+import CategoryAdmin from "./components/pages/Admin/Admin.jsx";
 
 const App = () => {
     useEffect(() => {
@@ -28,8 +30,10 @@ const App = () => {
                 <Route path="/home" element={<PostList />} />
                 <Route path="profile/:userId" element={<Profile />} />
                 <Route path="chat" element={<SidebarChats />} />
+                <Route path="/admin" element={<CategoryAdmin />} />
                 <Route path="/subscriptions" element={<SubscriptionsFeed />} />
                 <Route path="/create-post" element={<CreatePostPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/post/:postId/comments" element={<PostCommentsPage />} />
                 <Route path="/chat" element={<ChatLayoutWrapper />}>
                     <Route index element={<div>Выберите чат</div>} />

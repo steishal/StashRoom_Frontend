@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { usePostController } from '../../../controllers/PostController';
 import apiClient from '../../../apiClient';
 import styles from '../../../styles/CreatePostPage.module.css';
+import {useNavigate} from "react-router-dom";
 
 const CreatePostPage = () => {
     const { createPost } = usePostController();
     const [content, setContent] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [categories, setCategories] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [images, setImages] = useState([]);
     const [previewUrls, setPreviewUrls] = useState([]);
+    const navigate = useNavigate();
 
 
     useEffect(() => {
@@ -34,6 +37,9 @@ const CreatePostPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         if (!categoryId) {
             alert("Выберите категорию");
             return;
@@ -52,6 +58,7 @@ const CreatePostPage = () => {
             setImages([]);
             setPreviewUrls([]);
             alert('Пост опубликован!');
+            navigate('/home');
         } catch (err) {
             alert('Ошибка при публикации');
             console.error(err);
@@ -104,7 +111,9 @@ const CreatePostPage = () => {
                     </div>
                 </div>
 
-                <button type="submit" className={styles.button}>Опубликовать</button>
+                <button type="submit" className={styles.button} disabled={isSubmitting}>
+                    {isSubmitting ? 'Публикация...' : 'Опубликовать'}
+                </button>
             </form>
         </div>
     );

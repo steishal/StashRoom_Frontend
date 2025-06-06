@@ -10,7 +10,7 @@ const EditPostPage = () => {
     const navigate = useNavigate();
 
     const { post, fetchPostById, updatePost } = usePostController();
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [content, setContent] = useState('');
     const [categoryId, setCategoryId] = useState('');
     const [categories, setCategories] = useState([]);
@@ -41,18 +41,24 @@ const EditPostPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (isSubmitting) return;
+        setIsSubmitting(true);
+
         if (!categoryId) {
             alert("Выберите категорию");
+            setIsSubmitting(false);
             return;
         }
 
         try {
             await updatePost(id, { content, categoryId });
             alert('Пост обновлён!');
-            navigate(`/posts/${id}`);
+            navigate('/home');
         } catch (err) {
             console.error('Ошибка при обновлении поста', err);
             alert('Не удалось обновить пост');
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -94,11 +100,12 @@ const EditPostPage = () => {
                     </div>
                 )}
 
-                <button type="submit" className={styles.button}>Сохранить</button>
+                <button type="submit" className={styles.button} disabled={isSubmitting}>
+                    {isSubmitting ? 'Сохранение...' : 'Сохранить'}
+                </button>
             </form>
         </div>
     );
 };
 
 export default EditPostPage;
-

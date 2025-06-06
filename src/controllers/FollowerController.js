@@ -1,17 +1,16 @@
-import { useState, useEffect, useCallback} from 'react';
+import {useState, useEffect, useCallback, useContext} from 'react';
 import { FollowerService } from '../services/followerService.js';
 import { Follower } from '../models/Follower.js';
-import { useAuth } from '../context/AuthContext.jsx';
+import {AuthContext} from '../context/AuthContext.jsx';
 
 export const useFollowerController = (userId) => {
-    const { currentUser } = useAuth();
-    const currentUserId = currentUser?.id;
 
     const [followers, setFollowers] = useState([]);
     const [following, setFollowing] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const { user } = useContext(AuthContext);
 
     const loadData = useCallback(async () => {
         try {
@@ -31,18 +30,18 @@ export const useFollowerController = (userId) => {
     }, [userId]);
 
     const checkFollowingStatus = useCallback(async () => {
-        if (!currentUserId || !userId) return;
+        if (!user.id || !userId) return;
 
         try {
-            const followingList = await FollowerService.getFollowing(currentUserId);
-            setIsFollowing(followingList.some(f => f.following.id === userId));
+            const followingList = await FollowerService.getFollowing(user.id);
+            setIsFollowing(followingList.some(f => f.followingId === Number(userId)));
         } catch (err) {
             setError(err.message);
         }
-    }, [currentUserId, userId]);
+    }, [user.id, userId]);
 
     const toggleFollow = async () => {
-        if (!currentUserId) {
+        if (!user.id) {
             setError('Authorization required');
             return;
         }
@@ -57,11 +56,10 @@ export const useFollowerController = (userId) => {
                 await FollowerService.follow(userId);
             }
 
-            await Promise.all([checkFollowingStatus(), loadData()]);
         } catch (err) {
             setError(err.response?.data?.message || err.message);
-            setIsFollowing(prev => !prev);
         } finally {
+            await Promise.all([checkFollowingStatus(), loadData()]);
             setIsLoading(false);
         }
     };

@@ -6,7 +6,7 @@ export const FollowerService = {
         return response.data;
     },
 
-    async getFollowing(userId){
+    async getFollowing(userId) {
         const response = await apiClient.get(`/users/${userId}/following`);
         return response.data;
     },

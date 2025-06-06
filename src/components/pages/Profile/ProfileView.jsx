@@ -4,6 +4,8 @@ import UserPosts from "../Post/UserPosts.jsx";
 import AvatarUploader from './AvatarUploader';
 import { useAuth } from '../../../context/AuthContext.jsx';
 import {useUserController} from "../../../controllers/UserController.js";
+import {FiSettings} from "react-icons/fi";
+import {Link} from "react-router-dom";
 
 
 const ProfileView = ({
@@ -58,7 +60,14 @@ const ProfileView = ({
                     onAvatarChange={(newUrl) => setAvatarUrl(newUrl)}
                 />
 
-                <div className={styles.username}>{profileData.username}</div>
+                <div className={styles.usernameWithSettings}>
+                    <span className={styles.username}>{profileData.username} </span>
+                    {currentUser?.id === Number(userId) && (
+                        <Link to="/settings" className={styles.settingsIcon}>
+                            <FiSettings size={20} />
+                        </Link>
+                    )}
+                </div>
 
                 {currentUser?.id !== userId && (
                     <button
