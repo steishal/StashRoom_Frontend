@@ -6,6 +6,8 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import {useUserController} from "../../../controllers/UserController.js";
 import {FiSettings} from "react-icons/fi";
 import {Link} from "react-router-dom";
+import apiClient from "../../../apiClient.js";
+import TelegramModal from "../../TelegramModal.jsx";
 
 
 const ProfileView = ({
@@ -21,7 +23,46 @@ const ProfileView = ({
                      }) => {
     const [avatarUrl, setAvatarUrl] = useState(null);
     const { user } = useAuth();
-    const {fetchUserAvatar} = useUserController();
+    const { fetchUserAvatar } = useUserController();
+    const [showTelegramModal, setShowTelegramModal] = useState(false);
+    const [telegramToken, setTelegramToken] = useState(null);
+    const [telegramLinked, setTelegramLinked] = useState(false);
+    const [telegramLoading, setTelegramLoading] = useState(false);
+
+    const handleTelegramLink = async () => {
+        try {
+            setTelegramLoading(true);
+            const response = await apiClient.post("/users/telegram/generate-token");
+            const token = response.data;
+            setTelegramToken(token);
+            setShowTelegramModal(true); // показать модалку
+
+            const checkInterval = setInterval(async () => {
+                try {
+                    const userResponse = await apiClient.get(`/users/${currentUser.id}`);
+                    if (userResponse.data.telegramChatId) {
+                        setTelegramLinked(true);
+                        clearInterval(checkInterval);
+                        alert("Telegram успешно привязан!");
+                    }
+                } catch (error) {
+                    console.error("Ошибка проверки статуса:", error);
+                }
+            }, 5000);
+
+            setTimeout(() => {
+                clearInterval(checkInterval);
+                if (!telegramLinked) {
+                    alert("Время привязки истекло. Попробуйте снова.");
+                }
+            }, 300000);
+        } catch (error) {
+            console.error("Ошибка при генерации токена:", error);
+            alert("Не удалось создать токен Telegram.");
+        } finally {
+            setTelegramLoading(false);
+        }
+    };
 
     useEffect(() => {
         const loadAvatar = async () => {
@@ -63,13 +104,15 @@ const ProfileView = ({
                 <div className={styles.usernameWithSettings}>
                     <span className={styles.username}>{profileData.username} </span>
                     {currentUser?.id === Number(userId) && (
-                        <Link to="/settings" className={styles.settingsIcon}>
-                            <FiSettings size={20} />
-                        </Link>
+                        <>
+                            <Link to="/settings" className={styles.settingsIcon}>
+                                <FiSettings size={20} />
+                            </Link>
+
+                        </>
                     )}
                 </div>
-
-                {currentUser?.id !== userId && (
+                {currentUser?.id !== Number(userId) && (
                     <button
                         className={`${styles.followButton} ${isFollowing ? styles.unfollow : ""}`}
                         onClick={toggleFollow}
@@ -89,6 +132,61 @@ const ProfileView = ({
                     <div className={styles.statCount}>{followers.length}</div>
                 </div>
             </div>
+
+            {currentUser?.id === Number(userId) && (
+                <div className={styles.createPostSection}>
+                    <Link to="/create-post" className={styles.createPostButton}>
+                        + Создать пост
+                    </Link>
+                </div>
+            )}
+
+            <p>
+                {!profileData.tgLink && (
+                    <button
+                        className={styles.telegramButton}
+                        onClick={handleTelegramLink}
+                        disabled={telegramLoading}
+                    >
+                        {telegramLoading ? "Создание токена..." : "Привязать Telegram"}
+                    </button>
+                )}
+            </p>
+
+            {showTelegramModal && (
+                <TelegramModal
+                    token={telegramToken}
+                    onClose={() => setShowTelegramModal(false)}
+                />
+            )}
+
+            {(profileData.vkLink || profileData.tgLink) && (
+                <div className={styles.socialLinksSection}>
+                    <div className={styles.socialTitle}>Контакты:</div>
+                    <div className={styles.socialLinks}>
+                        {profileData.vkLink && (
+                            <a
+                                href={profileData.vkLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.socialIcon}
+                            >
+                                <img src="/icons/vk.svg" alt="VK" />
+                            </a>
+                        )}
+                        {profileData.tgLink && (
+                            <a
+                                href={profileData.tgLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={styles.socialIcon}
+                            >
+                                <img src="/icons/telegram.svg" alt="Telegram" />
+                            </a>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <div className={styles.postsContainer}>
                 <UserPosts userId={userId} currentUserId={currentUser?.id} />

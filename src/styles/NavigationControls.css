@@ -21,13 +21,13 @@
 
 .nav-link:hover {
     background-color: #f0f2f5;
-    color: #1da1f2;
+    color: #4f46e5;
 }
 
 .active {
     font-weight: bold;
-    color: #1da1f2;
-    border-bottom: 2px solid #1da1f2;
+    color: #4f46e5;
+    border-bottom: 2px solid #4f46e5;;
 }
 
 .user-search-container {
@@ -52,7 +52,7 @@
 }
 
 .user-search-input:focus {
-    box-shadow: 0 0 0 3px rgba(29, 161, 242, 0.25);
+    box-shadow: 0 0 0 3px #B2AFF6;
     background-color: #fff;
 }
 

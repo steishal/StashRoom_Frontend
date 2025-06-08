@@ -197,3 +197,27 @@
     background-color: #f0f0f0;
 }
 
+/* Современная стилизация кнопки отправки */
+.commentForm button {
+    background-color: #4f46e5; /* насыщенный синий (индиго) */
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    align-self: flex-end;
+    margin-top: 8px;
+}
+
+.commentForm button:hover {
+    background-color: #4338ca; /* чуть темнее при наведении */
+    transform: translateY(-1px);
+}
+
+.commentForm button:disabled {
+    background-color: #a5b4fc; /* светлый фиолетовый */
+    cursor: not-allowed;
+}

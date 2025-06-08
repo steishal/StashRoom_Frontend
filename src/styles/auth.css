@@ -27,7 +27,7 @@
 }
 
 .auth-container button {
-    background-color: #4680c2;
+    background-color: #4f46e5;
     color: white;
     padding: 12px;
     font-size: 16px;
@@ -38,7 +38,7 @@
 }
 
 .auth-container button:hover {
-    background-color: #326fa2;
+    background-color: #4f46e5;
 }
 
 .auth-error {
@@ -52,6 +52,6 @@
 
 .reg_button {
     text-decoration: none;
-    color: #4680c2;
+    color:#4f46e5;
     font-weight: 500;
 }

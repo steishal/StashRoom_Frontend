@@ -86,6 +86,17 @@ export const useUserController = () => {
         }
     }, [currentUser?.id]);
 
+    const checkHasTelegramChatId = useCallback(async (userId) => {
+        try {
+            const hasId = await UserService.hasTelegramChatId(userId);
+            return hasId;
+        } catch (err) {
+            console.error('Ошибка при проверке telegramChatId:', err);
+            setError(err.message || 'Failed to check telegramChatId');
+            return false;
+        }
+    }, []);
+
     useEffect(() => {
         const abortController = new AbortController();
 
@@ -122,6 +133,7 @@ export const useUserController = () => {
         updateUser,
         refreshUser: fetchCurrentUser,
         getUserById,
-        fetchUserAvatar
+        fetchUserAvatar,
+        checkHasTelegramChatId
     };
 };

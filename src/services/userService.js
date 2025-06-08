@@ -40,5 +40,10 @@ export const UserService = {
         }
 
         return response.data;
+    },
+
+    async hasTelegramChatId(userId) {
+        const response = await apiClient.get(`/user/${userId}/hasTelegramChatId`);
+        return response.data;
     }
 };

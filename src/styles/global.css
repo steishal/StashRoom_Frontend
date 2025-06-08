@@ -7,7 +7,7 @@ body {
 
 a {
     text-decoration: none;
-    color: #4680c2;
+    color: #4f46e5;
 }
 
 a:hover {
@@ -32,12 +32,12 @@ a:hover {
 }
 
 .primary-button {
-    background-color: #4680c2;
+    background-color: #4f46e5;
     color: white;
 }
 
 .primary-button:hover {
-    background-color: #326fa2;
+    background-color: #4f46e5;
 }
 
 .danger-button {

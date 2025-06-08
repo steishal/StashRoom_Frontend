@@ -14,7 +14,6 @@ const CreatePostPage = () => {
     const [previewUrls, setPreviewUrls] = useState([]);
     const navigate = useNavigate();
 
-
     useEffect(() => {
         const loadCategories = async () => {
             try {
@@ -42,13 +41,13 @@ const CreatePostPage = () => {
 
         if (!categoryId) {
             alert("Выберите категорию");
+            setIsSubmitting(false);
             return;
         }
 
         const formData = new FormData();
         formData.append('content', content);
-        formData.append('categoryId', 1);
-        console.log(categoryId.id);
+        formData.append('categoryId', categoryId); // <-- исправлено
         images.forEach(img => formData.append('images', img));
 
         try {
@@ -62,6 +61,8 @@ const CreatePostPage = () => {
         } catch (err) {
             alert('Ошибка при публикации');
             console.error(err);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -70,19 +71,20 @@ const CreatePostPage = () => {
             <h2 className={styles.heading}>Создать пост</h2>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.selectWrapper}>
-                    <label htmlFor="category">Категория:</label>
-                    <select
-                        id="category"
-                        value={categoryId}
-                        onChange={(e) => setCategoryId(e.target.value)}
-                        required
-                        className={styles.select}
-                    >
-                        <option value="">Выберите категорию</option>
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                        ))}
-                    </select>
+                    <div className={styles.categoryWrapper}>
+                        <div className={styles.categories}>
+                            {categories.map(cat => (
+                                <button
+                                    type="button"
+                                    key={cat.categoryId}
+                                    onClick={() => setCategoryId(cat.categoryId)}
+                                    className={`${styles.categoryCard} ${categoryId === cat.categoryId ? styles.selected : ''}`}
+                                >
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 <textarea

@@ -90,7 +90,8 @@ const Auth = ({ type }) => {
 
             {type === 'login' && (
                 <div className="reg_button_div">
-                    <Link to="/register" className="reg_button">Создать аккаунт</Link>
+                    <p><Link to="/register" className="reg_button">Создать аккаунт</Link></p>
+                    <p><Link to="/forgot-password" className="reg_button">Забыли пароль?</Link></p>
                 </div>
             )}
         </div>

@@ -67,19 +67,18 @@ const EditPostPage = () => {
             <h2 className={styles.heading}>Редактировать пост</h2>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.selectWrapper}>
-                    <label htmlFor="category">Категория:</label>
-                    <select
-                        id="category"
-                        value={categoryId}
-                        onChange={(e) => setCategoryId(e.target.value)}
-                        required
-                        className={styles.select}
-                    >
-                        <option value="">Выберите категорию</option>
+                    <div className={styles.categories}>
                         {categories.map(cat => (
-                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                            <button
+                                type="button"
+                                key={cat.categoryId}
+                                onClick={() => setCategoryId(cat.categoryId)}
+                                className={`${styles.categoryCard} ${categoryId === cat.categoryId ? styles.selected : ''}`}
+                            >
+                                {cat.name}
+                            </button>
                         ))}
-                    </select>
+                    </div>
                 </div>
 
                 <textarea

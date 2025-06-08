@@ -15,6 +15,7 @@ import {useEffect} from "react";
 import ChatPageWrapper from "./components/pages/Message/ChatPageWrapper.jsx";
 import SettingsPage from "./components/pages/Profile/Settings.jsx";
 import CategoryAdmin from "./components/pages/Admin/Admin.jsx";
+import SmsForm from "./components/ForgotPasswordPage.jsx";
 
 const App = () => {
     useEffect(() => {
@@ -25,6 +26,7 @@ const App = () => {
         <Routes>
             <Route path="/login" element={<Auth type="login" />} />
             <Route path="/register" element={<Auth type="register" />} />
+            <Route path="/forgot-password" element={<SmsForm />} />
             <Route path="/" element={<Layout />}>
                 <Route path="/posts/:id/edit" element={<EditPostPage />} />
                 <Route path="/home" element={<PostList />} />

@@ -42,12 +42,12 @@
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    background-color: #1da1f2;
+    background-color: #4f46e5;
     color: white;
 }
 
 .followButton:hover {
-    background-color: #1991da;
+    background-color: #4f46e5;
 }
 
 .unfollow {
@@ -92,5 +92,86 @@
     width: 100%;
     max-width: 800px;
     padding: 16px;
+}
+
+.createPostSection {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.createPostButton {
+    background-color: #4f46ef;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block;
+}
+
+.createPostButton:hover {
+    background-color: #3f38c9;
+    transform: translateY(-1px);
+}
+
+.socialLinks {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.socialIcon img {
+    width: 28px;
+    height: 28px;
+    transition: transform 0.2s ease;
+}
+
+.socialIcon:hover img {
+    transform: scale(1.1);
+}
+
+.socialLinksSection {
+    margin-top: 1.5rem;
+}
+
+.socialTitle {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.socialLinks {
+    display: flex;
+    gap: 12px;
+}
+
+.socialIcon img {
+    width: 28px;
+    height: 28px;
+    transition: transform 0.2s ease;
+}
+
+.socialIcon img:hover {
+    transform: scale(1.1);
+}
+
+.telegramButton {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #229ED9;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.telegramButton:hover {
+    background-color: #1d8ec1;
 }
 
