@@ -1,13 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
-
-import  '../../../styles/ChatPage.css';
-import {useChatController} from "../../../controllers/useChatController.js";
+import '../../../styles/ChatPage.css';
+import { useChatController } from '../../../controllers/useChatController.js';
+import UserService from '../../../services/userService.js';
+import { useUserController } from '../../../controllers/UserController.js';
 
 const ChatPage = () => {
     const { userId } = useParams();
     const currentUser = JSON.parse(localStorage.getItem('user')) || {};
     const messagesEndRef = useRef(null);
+    const [partnerData, setPartnerData] = useState(null);
+    const [partnerAvatar, setPartnerAvatar] = useState(null);
+    const [isProfileLoading, setIsProfileLoading] = useState(true);
+    const [profileError, setProfileError] = useState(null);
+
+    const { fetchUserAvatar } = useUserController();
 
     const {
         messages,
@@ -24,6 +31,30 @@ const ChatPage = () => {
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
+
+    useEffect(() => {
+        const fetchPartner = async () => {
+            try {
+                const data = await UserService.getUserById(userId);
+                setPartnerData(data);
+            } catch (error) {
+                console.error(error);
+                setProfileError(error.message || 'Ошибка загрузки профиля');
+            } finally {
+                setIsProfileLoading(false);
+            }
+        };
+
+        const loadAvatar = async () => {
+            if (userId) {
+                const avatar = await fetchUserAvatar(userId);
+                setPartnerAvatar(avatar);
+            }
+        };
+
+        fetchPartner();
+        loadAvatar();
+    }, [userId, fetchUserAvatar]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -55,14 +86,17 @@ const ChatPage = () => {
     return (
         <div className="chat-container">
             <div className="chat-header">
-                {currentUser && (
-                    <Link to={`/profile/${userId}`} className="partner-info">
-                        <img
-                            src={currentUser.avatarUrl || '/default-avatar.png'}
-                            alt="Аватар"
-                            className="chat-avatar"
-                        />
-                        <span className="chat-username">{currentUser.username}</span>
+                {isProfileLoading && <span>Загрузка профиля...</span>}
+                {profileError && <span className="error">{profileError}</span>}
+                <img
+                    src={partnerAvatar || '/default-avatar.png'}
+                    alt="Аватар"
+                    className="chat-avatar"
+                />
+                {partnerData && (
+                    <Link to={`/profile/${partnerData.id}`} className="partner-info">
+
+                        <span className="chat-username">{partnerData.username}</span>
                     </Link>
                 )}
             </div>
@@ -159,3 +193,4 @@ const ChatPage = () => {
 };
 
 export default ChatPage;
+

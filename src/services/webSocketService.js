@@ -101,31 +101,41 @@ export const sendMessage = (message) => {
 };
 
 export const updateMessage = (message) => {
-    if (!stompClient?.connected) return false;
-
-    stompClient.publish({
-        destination: '/app/chat/update',
-        body: JSON.stringify({
-            id: message.id,
-            content: message.content,
-            receiverId: message.receiverId
-        })
-    });
-    return true;
+    if (!stompClient?.connected) {
+        console.error('[WS] Not connected for update');
+        return false;
+    }
+    try {
+        stompClient.publish({
+            destination: '/app/chat/update',
+            body: JSON.stringify({
+                id: message.id,
+                content: message.content
+            })
+        });
+        return true;
+    } catch (error) {
+        console.error('[WS] Update error:', error);
+        return false;
+    }
 };
 
 export const deleteMessage = (message) => {
-    if (!stompClient?.connected) return false;
+    if (!stompClient?.connected) {
+        console.error('[WS] Not connected for delete');
+        return false;
+    }
+    try {
+        stompClient.publish({
+            destination: '/app/chat/delete',
+            body: JSON.stringify({
+                messageId: message.id
+            })
+        });
+        return true;
+    } catch (error) {
+        console.error('[WS] Update error:', error);
+        return false;
+    }
 
-    stompClient.publish({
-        destination: '/app/chat/delete',
-        body: JSON.stringify({
-            messageId: message.id,
-            receiverId: message.receiverId
-        })
-    });
-    return true;
 };
-
-
-

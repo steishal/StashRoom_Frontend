@@ -42,7 +42,7 @@ export const UserService = {
         formData.append('userId', userId);
         formData.append('avatar', file);
 
-        const response = await apiClient.post('/api/users/avatar', formData, {
+        const response = await apiClient.post('/users/avatar', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -52,7 +52,7 @@ export const UserService = {
     },
 
     async searchUsers(query) {
-        const response = await apiClient.get(`/api/users/search`, {
+        const response = await apiClient.get(`/users/search`, {
             params: { query }
         });
         return response.data;

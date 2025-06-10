@@ -13,21 +13,15 @@ export const useChatController = (selectedUserId) => {
     const [currentUser, setCurrentUser] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-
-    // Обработчик входящих сообщений
     const handleIncomingMessage = useCallback((payload) => {
-        console.log("📩 Incoming payload:", payload);
-
+        console.log(" Incoming payload:", payload);
         setMessages(prev => {
-            // Для новых сообщений
             if (payload.type === 'NEW') {
-                // Ищем временное сообщение по tempId
                 const tempIndex = prev.findIndex(m =>
                     m.tempId && m.tempId === payload.tempId
                 );
 
                 if (tempIndex !== -1) {
-                    // Заменяем временное сообщение на финальное
                     const updated = [...prev];
                     updated[tempIndex] = {
                         ...payload,
@@ -35,23 +29,28 @@ export const useChatController = (selectedUserId) => {
                     };
                     return updated;
                 }
-
-                // Добавляем новое сообщение от собеседника
                 return [...prev, { ...payload, status: 'sent' }];
             }
 
-            // Для обновленных сообщений
             if (payload.type === 'UPDATED') {
                 return prev.map(m =>
-                    m.id === payload.id ? { ...m, ...payload } : m
+                    m.id === payload.id
+                        ? {
+                            ...m,
+                            content: payload.content,
+                            isUpdating: false
+                        }
+                        : m
                 );
             }
-
-            // Для удаленных сообщений
             if (payload.type === 'DELETED') {
                 return prev.map(m =>
-                    m.id === payload.messageId
-                        ? { ...m, content: 'Сообщение удалено', isDeleted: true }
+                    m.id === payload.id
+                        ? {
+                            ...m,
+                            isDeleted: true,
+                            isDeleting: false
+                        }
                         : m
                 );
             }
@@ -60,7 +59,6 @@ export const useChatController = (selectedUserId) => {
         });
     }, []);
 
-    // Инициализация чата
     useEffect(() => {
         const initChat = async () => {
             try {
@@ -74,7 +72,6 @@ export const useChatController = (selectedUserId) => {
                     username: user.username
                 });
 
-                // Загрузка истории сообщений
                 if (selectedUserId) {
                     const conversation = await fetchConversation(selectedUserId);
                     setMessages(conversation);
@@ -89,7 +86,6 @@ export const useChatController = (selectedUserId) => {
         initChat();
     }, [selectedUserId]);
 
-    // Управление WebSocket соединением
     useEffect(() => {
         if (!currentUser?.id || !selectedUserId) return;
 
@@ -100,7 +96,6 @@ export const useChatController = (selectedUserId) => {
         };
     }, [currentUser, selectedUserId, handleIncomingMessage]);
 
-    // Отправка сообщения
     const sendMessage = useCallback((content) => {
         if (!content.trim()) return;
 
@@ -117,11 +112,9 @@ export const useChatController = (selectedUserId) => {
 
         setMessages(prev => [...prev, newMessage]);
 
-        // Отправка через WebSocket
         const success = wsSendMessage(newMessage);
 
         if (!success) {
-            // Обновляем статус при ошибке
             setMessages(prev => prev.map(m =>
                 m.tempId === tempId
                     ? { ...m, status: 'error' }
@@ -130,7 +123,6 @@ export const useChatController = (selectedUserId) => {
         }
     }, [currentUser, selectedUserId]);
 
-    // Редактирование сообщения
     const editMessage = useCallback((messageId, newContent) => {
         setMessages(prev => prev.map(m =>
             m.id === messageId
@@ -145,19 +137,32 @@ export const useChatController = (selectedUserId) => {
         });
     }, [selectedUserId]);
 
-    // Удаление сообщения
     const deleteMessage = useCallback((messageId) => {
-        setMessages(prev => prev.map(m =>
-            m.id === messageId
-                ? { ...m, isDeleting: true }
-                : m
-        ));
+        setMessages(prev =>
+            prev.map(m =>
+                m.id === messageId
+                    ? { ...m, isDeleted: true, isDeleting: true }
+                    : m
+            )
+        );
 
         wsDeleteMessage({
             id: messageId,
             receiverId: selectedUserId
         });
+
     }, [selectedUserId]);
+
+
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setMessages(prev => prev.filter(m =>
+                !(m.status === 'error' && Date.now() - Number(m.tempId) > 30000)
+            ));
+        }, 5000);
+
+        return () => clearInterval(timer);
+    }, []);
 
     return {
         messages,
