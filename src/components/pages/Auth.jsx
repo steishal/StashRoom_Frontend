@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../../styles/auth.css';
-import apiClient from '../../apiClient';
 import { useAuth } from '../../context/AuthContext';
+import { AuthService } from '../../services/AuthService';
 
 const Auth = ({ type }) => {
     const [formData, setFormData] = useState({
@@ -19,39 +19,27 @@ const Auth = ({ type }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting) return;
+
         setIsSubmitting(true);
         setError(null);
 
-        const endpoint = type === 'login'
-            ? '/users/auth/login'
-            : '/users/register';
-
         try {
-            const response = await apiClient.post(endpoint, formData);
-
             if (type === 'login') {
-                const authHeader = response.headers['authorization'];
-                const token = authHeader.split(' ')[1];
-
+                const { user, token } = await AuthService.login(formData);
                 localStorage.setItem('authToken', token);
-                localStorage.setItem('user', JSON.stringify(response.data));
-                setUser(response.data);
-
+                localStorage.setItem('user', JSON.stringify(user));
+                setUser(user);
                 navigate('/home');
             } else {
+                await AuthService.register(formData);
                 navigate('/login');
             }
         } catch (err) {
-            const message =
-                err.response?.data?.message ||
-                err.message ||
-                'Произошла ошибка при входе';
-            setError(message);
+            setError(err.message || 'Произошла ошибка при входе');
         } finally {
             setIsSubmitting(false);
         }
     };
-
 
     return (
         <div className="auth-container">

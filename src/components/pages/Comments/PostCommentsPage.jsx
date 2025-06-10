@@ -6,7 +6,8 @@ import {PostService} from "../../../services/postService.js";
 import PostView from "../Post/PostView.jsx";
 import {AuthContext} from "../../../context/AuthContext.jsx";
 import {useUserController} from "../../../controllers/UserController.js";
-
+import { ru } from 'date-fns/locale';
+import {formatDistanceToNow} from "date-fns";
 
 const PostCommentsPage = () => {
     const { postId } = useParams();
@@ -74,7 +75,6 @@ const PostCommentsPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (isSubmitting || !newComment.trim()) return;
-
         setIsSubmitting(true);
         try {
             await addComment(newComment.trim());
@@ -171,7 +171,7 @@ const PostCommentsPage = () => {
                             ) : (
                                 <>
                                     <div className={styles.commentText}>{comment.content}</div>
-                                    <span className={styles.commentDate}>{new Date(comment.createdAt).toLocaleString()}</span>
+                                    <span className={styles.commentDate}>{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true, locale: ru })}</span>
 
                                 </>
                             )}

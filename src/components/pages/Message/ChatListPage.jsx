@@ -1,34 +1,69 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from "../../../context/AuthContext.jsx";
 import '../../../styles/ChatListPage.css';
-
-const mockChats = [
-    { id: 1, name: 'Аня', lastMessage: 'Привет! Как дела?', unread: 2 },
-    { id: 2, name: 'Пётр', lastMessage: 'До встречи!', unread: 0 },
-    { id: 3, name: 'Катя', lastMessage: 'Жду от тебя файл...', unread: 1 },
-];
+import messageService from "../../../services/messageService.js";
 
 const ChatListPage = () => {
+    const { user } = useContext(AuthContext);
+    const [conversations, setConversations] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const loadConversations = async () => {
+            try {
+                const data = await messageService.fetchAllConversations();
+                setConversations(data);
+            } catch (error) {
+                console.error('Ошибка загрузки чатов:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadConversations();
+    }, []);
+
+    const handleChatClick = (userId) => {
+        navigate(`/chat/${userId}`);
+    };
+
+    if (loading) return <div>Загрузка чатов...</div>;
+
     return (
-        <div className="chat-list-page">
-            <h2>Ваши чаты</h2>
-            <ul className="chat-list">
-                {mockChats.map(chat => (
-                    <li key={chat.id} className="chat-item">
-                        <Link to={`/chat/${chat.id}`}>
-                            <div className="chat-name">{chat.name}</div>
+        <div className="chat-list">
+            <h2>Мои чаты</h2>
+            {conversations.length === 0 ? (
+                <p>Нет активных чатов.</p>
+            ) : (
+                <ul>
+                    {conversations.map((conv) => (
+                        <li
+                            key={conv.chatWithUserId}
+                            onClick={() => handleChatClick(conv.chatWithUserId)}
+                            className="chat-item"
+                        >
+                            <div className="chat-name">{conv.chatWithUsername}</div>
+
                             <div className="chat-preview">
-                                <span>{chat.lastMessage}</span>
-                                {chat.unread > 0 && (
-                                    <span className="unread-badge">{chat.unread}</span>
-                                )}
+                                <strong>{conv.lastMessageSender}:</strong> {conv.lastMessageContent?.slice(0, 30)}...
                             </div>
-                        </Link>
-                    </li>
-                ))}
-            </ul>
+
+                            <div className="chat-time">
+                                {new Date(conv.sentAt).toLocaleTimeString('ru-RU', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            )}
         </div>
     );
 };
 
 export default ChatListPage;
+
+

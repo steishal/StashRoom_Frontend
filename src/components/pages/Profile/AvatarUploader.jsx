@@ -1,15 +1,13 @@
 import React, { useRef, useState } from 'react';
-import axios from 'axios';
 import styles from '../../../styles/Profile.module.css';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import {UserService} from "../../../services/userService.js";
 
 const AvatarUploader = ({ userId, avatarUrl, onAvatarChange }) => {
     const fileInputRef = useRef(null);
     const [localAvatarUrl, setLocalAvatarUrl] = useState(avatarUrl);
 
     const { user } = useAuth();
-    const token = localStorage.getItem("authToken");
-
     const isCurrentUser = user?.id === userId;
 
     const handleAvatarClick = () => {
@@ -20,21 +18,10 @@ const AvatarUploader = ({ userId, avatarUrl, onAvatarChange }) => {
 
     const handleFileChange = async (event) => {
         const file = event.target.files[0];
-        if (!file || !token) return;
-
-        const formData = new FormData();
-        formData.append("userId", userId);
-        formData.append("avatar", file);
+        if (!file) return;
 
         try {
-            const response = await axios.post("/api/users/avatar", formData, {
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data"
-                }
-            });
-
-            const newAvatarUrl = response.data.avatar;
+            const newAvatarUrl = await UserService.uploadAvatar(userId, file);
             setLocalAvatarUrl(newAvatarUrl);
             if (onAvatarChange) {
                 onAvatarChange(newAvatarUrl);

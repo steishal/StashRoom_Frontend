@@ -6,9 +6,8 @@ import { useAuth } from '../../../context/AuthContext.jsx';
 import {useUserController} from "../../../controllers/UserController.js";
 import {FiSettings} from "react-icons/fi";
 import {Link} from "react-router-dom";
-import apiClient from "../../../apiClient.js";
-import TelegramModal from "../../TelegramModal.jsx";
-
+import TelegramModal from "./TelegramModal.jsx";
+import UserService from "../../../services/UserService.js";
 
 const ProfileView = ({
                          isLoading,
@@ -19,11 +18,11 @@ const ProfileView = ({
                          followers,
                          following,
                          isFollowing,
-                         toggleFollow
+                         toggleFollow,
                      }) => {
     const [avatarUrl, setAvatarUrl] = useState(null);
     const { user } = useAuth();
-    const { fetchUserAvatar } = useUserController();
+    const { fetchUserAvatar, checkHasTelegramChatId} = useUserController();
     const [showTelegramModal, setShowTelegramModal] = useState(false);
     const [telegramToken, setTelegramToken] = useState(null);
     const [telegramLinked, setTelegramLinked] = useState(false);
@@ -32,15 +31,14 @@ const ProfileView = ({
     const handleTelegramLink = async () => {
         try {
             setTelegramLoading(true);
-            const response = await apiClient.post("/users/telegram/generate-token");
-            const token = response.data;
+            const token = await UserService.generateTelegramToken();
             setTelegramToken(token);
-            setShowTelegramModal(true); // показать модалку
+            setShowTelegramModal(true);
 
             const checkInterval = setInterval(async () => {
                 try {
-                    const userResponse = await apiClient.get(`/users/${currentUser.id}`);
-                    if (userResponse.data.telegramChatId) {
+                    const userResponse = await UserService.getUserById(currentUser.id);
+                    if (userResponse.telegramChatId) {
                         setTelegramLinked(true);
                         clearInterval(checkInterval);
                         alert("Telegram успешно привязан!");
@@ -64,6 +62,17 @@ const ProfileView = ({
         }
     };
 
+    useEffect(() => {
+        const checkTelegramStatus = async () => {
+            if (currentUser?.id === Number(userId)) {
+                const linked = await checkHasTelegramChatId(userId);
+                setTelegramLinked(linked);
+            }
+        };
+        checkTelegramStatus();
+    }, [userId, currentUser, checkHasTelegramChatId]);
+
+    console.log(showTelegramModal);
     useEffect(() => {
         const loadAvatar = async () => {
             try {
@@ -104,14 +113,12 @@ const ProfileView = ({
                 <div className={styles.usernameWithSettings}>
                     <span className={styles.username}>{profileData.username} </span>
                     {currentUser?.id === Number(userId) && (
-                        <>
-                            <Link to="/settings" className={styles.settingsIcon}>
-                                <FiSettings size={20} />
-                            </Link>
-
-                        </>
+                        <Link to="/settings" className={styles.settingsIcon}>
+                            <FiSettings size={20} />
+                        </Link>
                     )}
                 </div>
+
                 {currentUser?.id !== Number(userId) && (
                     <button
                         className={`${styles.followButton} ${isFollowing ? styles.unfollow : ""}`}
@@ -141,8 +148,8 @@ const ProfileView = ({
                 </div>
             )}
 
-            <p>
-                {!profileData.tgLink && (
+            {currentUser?.id === Number(userId) && !telegramLinked && (
+                <p>
                     <button
                         className={styles.telegramButton}
                         onClick={handleTelegramLink}
@@ -150,8 +157,8 @@ const ProfileView = ({
                     >
                         {telegramLoading ? "Создание токена..." : "Привязать Telegram"}
                     </button>
-                )}
-            </p>
+                </p>
+            )}
 
             {showTelegramModal && (
                 <TelegramModal

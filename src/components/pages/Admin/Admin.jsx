@@ -10,7 +10,6 @@ const CategoryAdmin = () => {
     const [editName, setEditName] = useState('');
     const navigate = useNavigate();
 
-
     useEffect(() => {
         fetchCategories();
     }, []);

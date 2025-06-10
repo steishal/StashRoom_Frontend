@@ -1,10 +1,395 @@
 .chat-container {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 60px);
-    background-color: #f9f9f9;
+    height: 100vh;
+    background: #f3f4f6;
+    padding: 20px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.chat-container > div {
+.messages-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-right: 10px;
+}
+
+.message {
+    max-width: 60%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    position: relative;
+    word-wrap: break-word;
+    transition: background 0.3s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.message.incoming {
+    align-self: flex-start;
+    background-color: #ffffff;
+}
+
+.message.own {
+    align-self: flex-end;
+    background-color: #dbeafe;
+}
+
+.message.editing {
+    border: 2px solid #f59e0b;
+    background-color: #fef3c7;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.message-content {
+    font-size: 1rem;
+    color: #1f2937;
+}
+
+.message-actions {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.message-form {
+    display: flex;
+    gap: 10px;
+    padding: 16px;
+    border-top: 1px solid #e5e7eb;
+    background-color: #ffffff;
+}
+
+.message-form input[type="text"] {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 9999px;
+    border: 1px solid #d1d5db;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.message-form input[type="text"]:focus {
+    border-color: #3b82f6;
+}
+
+.form-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.send-btn,
+.cancel-btn {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 9999px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.cancel-btn {
+    background-color: #6b7280;
+}
+
+.send-btn:hover {
+    background-color: #2563eb;
+}
+
+.cancel-btn:hover {
+    background-color: #4b5563;
+}
+
+.message {
+    position: relative; /* ✅ чтобы .message-actions могла быть absolute */
+    background-color: #f1f1f1;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    transition: background-color 0.2s;
+}
+
+.message:hover {
+    background-color: #e6e6e6;
+}
+
+.message-actions {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.message-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.message-actions button:hover {
+    opacity: 1;
+}
+.message {
+    cursor: default; /* ✅ Отключает pointer при наведении на всё сообщение */
+}
+.message-actions {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 1;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.message-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    color: #444;
+}
+
+.message-actions button:hover {
+    color: #000;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.message {
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.message:hover {
+    background-color: #f0f0f0;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-bottom: 4px;
+    padding-right: 40px; /* чтобы значки не налезали */
+    position: relative;
+}
+
+.message-actions {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 2;
+    background: white;
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.message-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.message-actions button:hover {
+    opacity: 1;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #374151;
+    margin-bottom: 6px;
+    position: relative;
+}
+
+.sender {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.message-content {
+    font-size: 1rem;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.time {
+    font-size: 0.7rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.message-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    z-index: 1;
+}
+
+.message:hover .message-actions {
+    opacity: 1;
+}
+
+.message-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px;
+    opacity: 0.7;
+}
+
+.message-actions button:hover {
+    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
     padding: 10px;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 10px;
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.chat-username {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* ChatPage.css */
+.chat-header {
+    display: flex;
+    align-items: center;
+    background-color: white; /* ← белый фон */
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.chat-header:hover {
+    background-color: #f7f7f7;
+}
+
+.chat-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.chat-username {
+    font-weight: bold;
+    color: #333;
+    font-size: 16px;
+}
+
+
+.chat-header {
+    margin-bottom: 4px;
+}
+
+.chat-container {
+    padding: 0; /* без отступов */
+}
+
+.chat-header {
+    margin-bottom: 0;
+}
+
+.chat-messages {
+    padding: 20px;
+}
+
+.message {
+    max-width: 100%;
+    margin: 8px 0;
+    padding: 10px;
+    border-radius: 10px;
+    word-wrap: break-word;
+}
+
+/* Сообщение текущего пользователя */
+.message.own {
+    margin-left: auto;
+    margin-right: 20px;
+    text-align: right;
+}
+
+/* Сообщение собеседника */
+.message.incoming {
+    margin-right: auto;
+    margin-left: 20px; /* Отступ от левого края */
+    text-align: left;
 }

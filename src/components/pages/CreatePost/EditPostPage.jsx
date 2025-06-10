@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styles from '../../../styles/CreatePostPage.module.css';
 import { usePostController } from '../../../controllers/PostController.js';
-import apiClient from "../../../apiClient.js";
+import {CategoryService} from "../../../services/categoryService.js";
 
 
 const EditPostPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-
     const { post, fetchPostById, updatePost } = usePostController();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [content, setContent] = useState('');
@@ -20,13 +19,12 @@ const EditPostPage = () => {
         const fetchData = async () => {
             await fetchPostById(id);
             try {
-                const response = await apiClient.get('/categories');
-                setCategories(response.data);
+                const data = await CategoryService.getAllCategories();
+                setCategories(data);
             } catch (error) {
                 console.error('Ошибка загрузки категорий:', error);
             }
         };
-
         fetchData();
     }, [id]);
 

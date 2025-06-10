@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { usePostController } from '../../../controllers/PostController';
-import apiClient from '../../../apiClient';
 import styles from '../../../styles/CreatePostPage.module.css';
 import {useNavigate} from "react-router-dom";
+import {CategoryService} from "../../../services/categoryService.js";
 
 const CreatePostPage = () => {
     const { createPost } = usePostController();
@@ -17,8 +17,8 @@ const CreatePostPage = () => {
     useEffect(() => {
         const loadCategories = async () => {
             try {
-                const response = await apiClient.get('/categories');
-                setCategories(response.data);
+                const data = await CategoryService.getAllCategories();
+                setCategories(data);
             } catch (error) {
                 console.error('Ошибка загрузки категорий', error);
             }

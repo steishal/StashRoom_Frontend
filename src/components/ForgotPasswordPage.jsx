@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import '../styles/ForgotPasswordPage.css';
 import { useNavigate } from 'react-router-dom';
+import { AuthService } from '../services/AuthService.js';
+import '../styles/ForgotPasswordPage.css';
 
 const ForgotPasswordPage = () => {
     const [email, setEmail] = useState('');
@@ -15,19 +16,11 @@ const ForgotPasswordPage = () => {
         setMessage('Отправка токена...');
 
         try {
-            const response = await fetch('/api/auth/forgot-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, phone }),
-            });
-
-            if (response.ok) {
-                setMessage('Если данные верны, токен отправлен в Telegram');
-            } else {
-                setMessage('Ошибка при отправке токена');
-            }
+            await AuthService.sendResetToken({ email, phone });
+            setMessage('Если данные верны, токен отправлен в Telegram');
         } catch (err) {
-            setMessage('Сетевая ошибка при отправке токена');
+            console.error(err);
+            setMessage('Ошибка при отправке токена');
         }
     };
 
@@ -36,21 +29,11 @@ const ForgotPasswordPage = () => {
         setMessage('Сброс пароля...');
 
         try {
-            const response = await fetch(`/api/auth/reset-password?token=${encodeURIComponent(token)}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'text/plain' },
-                body: newPassword,
-            });
-
-            if (response.ok) {
-                setMessage('Пароль успешно изменён!');
-                setTimeout(() => navigate('/login'), 1500);
-            } else {
-                const text = await response.text();
-                setMessage(`Ошибка: ${text}`);
-            }
+            await AuthService.resetPassword(token, newPassword);
+            setMessage('Пароль успешно изменён!');
+            setTimeout(() => navigate('/login'), 1500);
         } catch (err) {
-            setMessage('Сетевая ошибка при сбросе пароля');
+            setMessage(`Ошибка: ${err.message}`);
         }
     };
 
@@ -116,6 +99,3 @@ const ForgotPasswordPage = () => {
 };
 
 export default ForgotPasswordPage;
-
-
-

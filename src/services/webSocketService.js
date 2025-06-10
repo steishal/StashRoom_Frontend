@@ -1,153 +1,131 @@
-import SockJS from "sockjs-client";
-import { Client } from "@stomp/stompjs";
-
-const socketUrl = "http://localhost:8080/ws";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 let stompClient = null;
-let subscription = null;
-const listeners = new Map();
-let listenerId = 0;
+let subscriptions = new Map();
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
 
-const waitUntilConnected = () => {
-    return new Promise((resolve, reject) => {
-        const maxAttempts = 50;
-        let attempts = 0;
-        const check = () => {
-            if (stompClient && stompClient.connected) {
-                resolve();
-            } else if (attempts >= maxAttempts) {
-                reject(new Error("WebSocket не подключен после ожидания"));
-            } else {
-                attempts++;
-                setTimeout(check, 100);
-            }
-        };
-        check();
-    });
-};
-
-const connect = () => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-        console.warn("No auth token found — WebSocket not connected");
-        return;
-    }
-
+export const connectWebSocket = (userId, messageHandler) => {
     if (stompClient && stompClient.connected) {
-        console.log("WebSocket уже подключён");
-        return;
+        return stompClient;
     }
 
-    if (stompClient) {
-        try {
-            stompClient.deactivate();
-        } catch (e) {
-            console.error("Ошибка при деактивации клиента:", e);
-        }
-        stompClient = null;
-        subscription = null;
-    }
+    const token = localStorage.getItem('authToken');
+    console.log('[WS] Connecting with token:', token);
 
-    stompClient = new Client({
-        webSocketFactory: () =>
-            new SockJS(`${socketUrl}?token=${encodeURIComponent(token)}`),
-        connectHeaders: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-        },
+    const client = new Client({
+        webSocketFactory: () => new SockJS(`http://localhost:8080/ws?token=${token}`),
         reconnectDelay: 5000,
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+
         onConnect: () => {
-            console.log("WebSocket (SockJS) connected");
+            console.log("✅ [WS] Connected!");
+            reconnectAttempts = 0;
 
-            if (!subscription) {
-                subscription = stompClient.subscribe("/user/queue/messages",
-                    (message) => {
-                    const data = JSON.parse(message.body);
-                    listeners.forEach((callback) => {
-                        try {
-                            callback(data);
-                        } catch (err) {
-                            console.error("Ошибка в обработчике WebSocket сообщения:", err);
-                        }
-                    });
-                });
-            }
+            const subscription = client.subscribe(
+                `/user/queue/messages`,
+                (message) => {
+                    console.log("Raw message:", message);
+                    try {
+                        const payload = JSON.parse(message.body);
+                        console.log("📨 [WS] Received:", payload);
+                        messageHandler(payload);
+                    } catch (error) {
+                        console.error('[WS] Message parsing error:', error);
+                    }
+                }
+            );
+
+            subscriptions.set(userId, subscription);
+            console.log(`🔗 [WS] Subscribed for user ${userId}`);
         },
+
         onStompError: (frame) => {
-            console.error("STOMP error:", frame.headers["message"]);
+            console.error('[WS] STOMP error:', frame.headers.message);
         },
-        onWebSocketClose: () => {
-            subscription = null;
-            console.warn("⚠ WebSocket closed");
-        },
-    });
-    stompClient.activate();
-};
 
-const disconnect = () => {
-    if (stompClient) {
-        if (subscription) {
-            try {
-                subscription.unsubscribe();
-            } catch (e) {
-                console.error("Error unsubscribing:", e);
+        onDisconnect: () => {
+            console.log('[WS] Disconnected');
+        },
+
+        onWebSocketClose: (closeEvent) => {
+            console.log('[WS] Connection closed:', closeEvent);
+            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+                reconnectAttempts++;
+                console.log(`[WS] Reconnecting (attempt ${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})`);
+                setTimeout(() => client.activate(), 5000);
+            } else {
+                console.error('[WS] Max reconnect attempts reached');
             }
-            subscription = null;
         }
-        try {
-            stompClient.deactivate();
-            console.log("WebSocket disconnected");
-        } catch (e) {
-            console.error("Ошибка при деактивации клиента:", e);
-        }
+    });
+
+    client.activate();
+    stompClient = client;
+    return client;
+};
+
+export const disconnectWebSocket = () => {
+    if (stompClient) {
+        subscriptions.forEach(sub => sub.unsubscribe());
+        subscriptions.clear();
+        stompClient.deactivate();
         stompClient = null;
+        console.log('[WS] Disconnected and cleaned up');
     }
 };
 
-const sendMessage = async (message) => {
-    const token = localStorage.getItem("authToken");
+export const sendMessage = (message) => {
+    if (!stompClient?.connected) {
+        console.error('[WS] Cannot send - not connected');
+        return false;
+    }
+
     try {
-        await waitUntilConnected();
         stompClient.publish({
-            destination: "/app/chat",
-            body: JSON.stringify(message),
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "content-type": "application/json" },
+            destination: "/app/chat/send",
+            body: JSON.stringify({
+                content: message.content,
+                receiverId: message.receiverId,
+                tempId: message.tempId
+            })
         });
-
-    } catch (err) {
-        console.warn("WebSocket is not connected. Сообщение не отправлено:", err);
+        console.log('[WS] Message sent:', message);
+        return true;
+    } catch (error) {
+        console.error('[WS] Send error:', error);
+        return false;
     }
 };
 
-const send = async (data) => {
-    try {
-        await waitUntilConnected();
-        stompClient.publish({
-            destination: "/app/extra",
-            body: JSON.stringify(data),
-        });
-    } catch (err) {
-        console.warn("WebSocket is not connected. Данные не отправлены:", err);
-    }
+export const updateMessage = (message) => {
+    if (!stompClient?.connected) return false;
+
+    stompClient.publish({
+        destination: '/app/chat/update',
+        body: JSON.stringify({
+            id: message.id,
+            content: message.content,
+            receiverId: message.receiverId
+        })
+    });
+    return true;
 };
 
-const addListener = (callback) => {
-    const id = ++listenerId;
-    listeners.set(id, callback);
-    return id;
+export const deleteMessage = (message) => {
+    if (!stompClient?.connected) return false;
+
+    stompClient.publish({
+        destination: '/app/chat/delete',
+        body: JSON.stringify({
+            messageId: message.id,
+            receiverId: message.receiverId
+        })
+    });
+    return true;
 };
 
-const removeListener = (id) => {
-    listeners.delete(id);
-};
 
-export const webSocketService = {
-    connect,
-    disconnect,
-    sendMessage,
-    send,
-    addListener,
-    removeListener,
-};
+

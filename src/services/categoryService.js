@@ -22,11 +22,6 @@ export const CategoryService = {
         return response.data;
     },
 
-    async getCategoryById(id) {
-        const response = await apiClient.get(`/categories/${id}`);
-        return response.data;
-    },
-
     async deleteCategory(id) {
         await apiClient.delete(`/admin/category/${id}`);
     }

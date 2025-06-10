@@ -12,4 +12,21 @@ apiClient.interceptors.request.use(config => {
     return config;
 });
 
+apiClient.interceptors.response.use(
+    response => response,
+    error => {
+        const status = error.response?.status;
+
+        if (status === 403) {
+            window.location.href = '/login';
+        } else if (status === 404) {
+            window.location.href = '/404';
+        } else if (status === 500) {
+            window.location.href = '/500';
+        }
+
+        return Promise.reject(error);
+    }
+);
+
 export default apiClient;

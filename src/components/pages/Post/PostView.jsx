@@ -4,6 +4,8 @@ import styles from '../../../styles/Post.module.css';
 import {useLikeController} from "../../../controllers/LikeController.js";
 import {LikeButton} from "./LikeButton.jsx";
 import {useUserController} from "../../../controllers/UserController.js";
+import { ru } from 'date-fns/locale';
+import {formatDistanceToNow} from "date-fns";
 
 const PostView = ({ post, currentUserId, onDelete}) => {
 
@@ -58,7 +60,9 @@ const PostView = ({ post, currentUserId, onDelete}) => {
                         />
                         <div style={{ marginLeft: '10px' }}>
                             <div className={styles.author}>{author?.username || 'Аноним'}</div>
-                            <div className={styles.date}>{new Date(post.createDate).toLocaleString()}</div>
+                            <div className={styles.date}>
+                                {formatDistanceToNow(new Date(post.createDate), { addSuffix: true, locale: ru })}
+                            </div>
                         </div>
                     </Link>
                 </div>

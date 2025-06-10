@@ -16,13 +16,8 @@ export const UserService = {
         return response.data;
     },
 
-    async getAvatar(userId) {
-        const response = await apiClient.get(`/users/${userId}/avatar`);
-        return response.data;
-    },
-
-    async getUserByUsername(username) {
-        const response = await apiClient.get(`/users/username/${username}`);
+    async generateTelegramToken() {
+        const response = await apiClient.post("/users/telegram/generate-token");
         return response.data;
     },
 
@@ -42,8 +37,31 @@ export const UserService = {
         return response.data;
     },
 
+    async uploadAvatar(userId, file) {
+        const formData = new FormData();
+        formData.append('userId', userId);
+        formData.append('avatar', file);
+
+        const response = await apiClient.post('/api/users/avatar', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        return response.data.avatar;
+    },
+
+    async searchUsers(query) {
+        const response = await apiClient.get(`/api/users/search`, {
+            params: { query }
+        });
+        return response.data;
+    },
+
     async hasTelegramChatId(userId) {
-        const response = await apiClient.get(`/user/${userId}/hasTelegramChatId`);
+        const response = await apiClient.get(`/users/${userId}/hasTelegramChatId`);
         return response.data;
     }
 };
+
+export default UserService;

@@ -1,106 +1,159 @@
-import React, { useEffect, useRef, useState } from 'react';
-import MessageList from './MessageList';
-import MessageInputContainer from './MessageInputContainer';
-import '../../../styles/ChatPage.css';
-import {webSocketService} from "../../../services/webSocketService.js";
-import {MessageService} from "../../../services/messageService.js";
-import {UserService} from "../../../services/userService.js";
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, Link } from 'react-router-dom';
 
-const ChatPage = ({ receiverId, currentUserId }) => {
-    const [messages, setMessages] = useState([]);
-    const messageListRef = useRef();
-    console.log(receiverId);
-    const [receiverInfo, setReceiverInfo] = useState(null);
+import  '../../../styles/ChatPage.css';
+import {useChatController} from "../../../controllers/useChatController.js";
 
-    const handleSend = async (text, files, receiverId) => {
-        if (!text.trim() && files.length === 0) return;
-        let attachmentsData = [];
-        if (files.length > 0) {
-            try {
-                attachmentsData = await Promise.all(
-                    files.map(file => MessageService.uploadFile(file))
-                );
-            } catch (err) {
-                alert("Ошибка загрузки файлов");
-                return;
-            }
-        }
-        const attachments = attachmentsData.map(res => res.data);
-        const newMessage = {
-            receiverId,
-            content: text.trim(),
-        };
-        try {
-            await webSocketService.sendMessage(newMessage);
-            setMessages(prev => [...prev, newMessage]);
-            messageListRef.current?.scrollToItem(messages.length);
-            alert("Сообщение отправлено");
-        } catch (error) {
-            alert("Ошибка при отправке: " + error.message);
-        }
-    };
+const ChatPage = () => {
+    const { userId } = useParams();
+    const currentUser = JSON.parse(localStorage.getItem('user')) || {};
+    const messagesEndRef = useRef(null);
+
+    const {
+        messages,
+        isLoading,
+        error,
+        sendMessage,
+        editMessage,
+        deleteMessage
+    } = useChatController(userId);
+
+    const [inputValue, setInputValue] = useState('');
+    const [editingId, setEditingId] = useState(null);
 
     useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages]);
 
-        const loadReceiverInfo = async () => {
-            try {
-                const user = await UserService.getUserById(receiverId);
-                setReceiverInfo(user);
-            } catch (error) {
-                console.error("Ошибка при загрузке пользователя", error);
-            }
-        };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!inputValue.trim()) return;
 
-        loadReceiverInfo();
+        if (editingId) {
+            editMessage(editingId, inputValue);
+            setEditingId(null);
+        } else {
+            sendMessage(inputValue);
+        }
 
-        const loadHistory = async () => {
-            const { messages: history } = await MessageService.getConversation(receiverId, 1, 20);
-            setMessages(history);
-            messageListRef.current?.scrollToItem(history.length - 1);
-        };
-        loadHistory();
+        setInputValue('');
+    };
 
-        const listenerId = webSocketService.addListener((data) => {
-            if (data.type === "message") {
-                const incomingMessage = data.message;
-                if (
-                    incomingMessage.sender.id === receiverId ||
-                    incomingMessage.receiverId === receiverId
-                ) {
-                    setMessages(prev => {
-                        const updated = [...prev, incomingMessage];
-                        setTimeout(() => {
-                            messageListRef.current?.scrollToItem(updated.length - 1);
-                        }, 0);
-                        return updated;
-                    });
-                }
-            }
-        });
+    const startEditing = (message) => {
+        setEditingId(message.id);
+        setInputValue(message.content);
+    };
 
-        return () => {
-            webSocketService.removeListener(listenerId);
-        };
-    }, [receiverId]);
+    const cancelEditing = () => {
+        setEditingId(null);
+        setInputValue('');
+    };
+
+    if (isLoading) return <div>Загрузка беседы...</div>;
+    if (error) return <div>Ошибка: {error}</div>;
 
     return (
         <div className="chat-container">
-            {receiverInfo && (
-                <div className="chat-header">
-                    <img
-                        src={receiverInfo.avatar || "/default-avatar.png"}
-                        alt="avatar"
-                        className="chat-avatar"
-                    />
-                    <span className="chat-username">{receiverInfo.username}</span>
+            <div className="chat-header">
+                {currentUser && (
+                    <Link to={`/profile/${userId}`} className="partner-info">
+                        <img
+                            src={currentUser.avatarUrl || '/default-avatar.png'}
+                            alt="Аватар"
+                            className="chat-avatar"
+                        />
+                        <span className="chat-username">{currentUser.username}</span>
+                    </Link>
+                )}
+            </div>
+
+            <div className="messages-list">
+                {messages.map(message => {
+                    const isCurrentUser = message.senderId === currentUser.id;
+                    const isEditing = editingId === message.id;
+                    const isSending = message.status === 'sending';
+                    const isError = message.status === 'error';
+
+                    return (
+                        <div
+                            key={message.id || `temp_${message.tempId}`}
+                            className={`message ${isEditing ? 'editing' : ''} ${
+                                isCurrentUser ? 'own' : 'incoming'
+                            } ${isSending ? 'sending' : ''} ${isError ? 'error' : ''}`}
+                        >
+                            <div className="message-header">
+                                <div className="sender">{message.senderUsername}</div>
+                                {!isEditing && isCurrentUser && !message.isDeleted && (
+                                    <div className="message-actions">
+                                        <button onClick={() => startEditing(message)}>✏️</button>
+                                        <button
+                                            onClick={() => deleteMessage(message.id)}
+                                            disabled={message.isDeleting}
+                                        >
+                                            {message.isDeleting ? '...' : '🗑️'}
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="message-content">
+                                {message.isDeleted ? (
+                                    <i>Сообщение удалено</i>
+                                ) : (
+                                    message.content
+                                )}
+
+                                {isSending && (
+                                    <span className="message-status">Отправка...</span>
+                                )}
+                                {isError && (
+                                    <span className="message-status error">Ошибка!</span>
+                                )}
+                            </div>
+
+                            <div className="message-footer">
+                                <div className="time">
+                                    {message.sentAt && new Date(message.sentAt).toLocaleTimeString([], {
+                                        hour: '2-digit',
+                                        minute: '2-digit'
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
+                <div ref={messagesEndRef} />
+            </div>
+
+            <form onSubmit={handleSubmit} className="message-form">
+                <input
+                    type="text"
+                    value={inputValue}
+                    onChange={e => setInputValue(e.target.value)}
+                    placeholder={editingId ? "Редактирование..." : "Введите сообщение..."}
+                    disabled={isLoading}
+                />
+
+                <div className="form-buttons">
+                    {editingId && (
+                        <button
+                            type="button"
+                            onClick={cancelEditing}
+                            className="cancel-btn"
+                        >
+                            Отмена
+                        </button>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="send-btn"
+                        disabled={!inputValue.trim() || isLoading}
+                    >
+                        {editingId ? 'Сохранить' : 'Отправить'}
+                    </button>
                 </div>
-            )}
-            <MessageList
-                messages={messages}
-                currentUserId={currentUserId}
-                ref={messageListRef}
-            />
-            <MessageInputContainer onSend={handleSend} receiverId={receiverId} />
+            </form>
         </div>
     );
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import "./TelegramModal.css"; // <--- Вот здесь подключение
+import "../../../styles/TelegramModal.css";
 
 const TelegramModal = ({ token, onClose }) => {
     const command = `/start ${token}`;

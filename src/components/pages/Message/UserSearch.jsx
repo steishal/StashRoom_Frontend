@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext.jsx';
+import { UserService } from '../../../services/UserService';
 
 const UserSearch = () => {
     const [query, setQuery] = useState('');
@@ -20,18 +21,8 @@ const UserSearch = () => {
 
         const timerId = setTimeout(async () => {
             setLoading(true);
-            const token = localStorage.getItem("authToken");
             try {
-                const res = await fetch(`/api/users/search?query=${encodeURIComponent(query)}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-                const data = await res.json();
+                const data = await UserService.searchUsers(query);
                 setSuggestions(data);
                 setError(null);
             } catch (err) {
@@ -46,26 +37,8 @@ const UserSearch = () => {
         return () => clearTimeout(timerId);
     }, [query]);
 
-    const handleSelect = async (selectedUser) => {
-        const token = localStorage.getItem("authToken");
-        try {
-            const res = await fetch(`/api/chats/user/${selectedUser.id}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-            const chat = await res.json();
-            navigate(`/chats/${chat.id}`);
-        } catch (err) {
-            console.error(err);
-            setError('Ошибка открытия чата');
-        }
-
-        setQuery('');
-        setSuggestions([]);
+    const handleSelect = (user) => {
+        navigate(`/chat/${user.id}`);
     };
 
     return (
@@ -86,7 +59,6 @@ const UserSearch = () => {
                             className="suggestion-item"
                             onClick={() => handleSelect(user)}>
                             <div><strong>{user.username}</strong> ({user.email})</div>
-                            <div className="user-id">ID: {user.id}</div>
                         </li>
                     ))}
                 </ul>

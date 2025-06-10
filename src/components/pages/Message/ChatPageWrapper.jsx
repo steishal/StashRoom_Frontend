@@ -1,7 +1,9 @@
-import { useParams } from "react-router-dom";
-import ChatPage from "./ChatPage.jsx";
+import { useParams } from 'react-router-dom';
+import ChatPage from './ChatPage';
 
-export default function ChatPageWrapper() {
-  const { receiverId } = useParams();
-  return <ChatPage receiverId={parseInt(receiverId)} />;
-}
+const ChatPageWrapper = () => {
+    const { userId } = useParams();
+    return <ChatPage userId={parseInt(userId, 10)} />;
+};
+
+export default ChatPageWrapper;

@@ -32,7 +32,7 @@ const NavigationControls = () => {
                     )}
 
                     <NavLink
-                        to="/chat"
+                        to="/chats"
                         className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
                     >
                             Чаты

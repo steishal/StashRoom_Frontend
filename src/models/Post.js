@@ -9,9 +9,6 @@ export class Post {
             category = null,
             createDate = null,
             images = [],
-            likeCount = 0,
-            likedByCurrentUser = false,
-            commentsCount = 0
         } = data;
 
         this.id = id;
@@ -24,8 +21,6 @@ export class Post {
         this.category = category ? new Category(category) : null;
         this.createDate = createDate;
         this.images = images;
-        this.likeCount = likeCount;
-        this.likedByCurrentUser = likedByCurrentUser;
-        this.commentsCount = commentsCount;
+        this.commentsCount = data.commentsCount
     }
 }
